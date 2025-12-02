@@ -46,22 +46,22 @@ Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 
 
 #  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
-## Run the demo locally
-**Before getting started, make sure you install:**
+## Run the Demo Locally
+**Before getting started, make sure you have installed:
 - [Node.js](https://nodejs.org/en/download/) 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
   
 **Clone the project**
 ```
-//directory of your choice
+# Choose a directory of your choice
 git clone https://github.com/LisaHJung/REPLACE-THIS-WITH-CORRECT-REPO.git
 ```
 **Start the server**
 
-Execute the following commands.
+Execute the following commands:
 ```
-//in the project directory
+# In the project directory
 npm install
 npm start
 ```
@@ -69,13 +69,13 @@ npm start
 
 In your browser, go to the following URL: http://localhost:8080/rolldice
 
-Refresh the page multiple times. This app will generate a random number from 1-6 just as if you were rolling a die. 
+Refresh the page multiple times. This app will generate a random number from 1–6, just as if you were rolling a die.
 
 ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
 **Using Docker, run the OTel Collector and Jaeger**
 ```
-//project directory in a different terminal
+# In a different terminal, within the project directory
 docker compose up --build 
 ```
 **Refresh the Roll the Dice app page multiple times to send traces to the OTel Collector**
@@ -97,7 +97,8 @@ In our set up, the service name was set to "demo".
 
 Select the service "demo" then click on the "Find Traces" button (blue arrow).
 
-If you don't see the service name "demo", try refreshing the Roll the Dice app page multiple times, verify that the OTel Collector is receiving telemetry by checking the OTel Collector logs (terminal running Docker), and then refreshing the Jaeger UI page.
+If you don't see the service name "demo", refresh the Roll the Dice app page a few times. Verify that the OpenTelemetry Collector is receiving telemetry by checking its logs (terminal running Docker), then refresh the Jaeger UI page again.
+
 
 3. Click on one of the traces (orange box)
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
@@ -112,16 +113,15 @@ If you don't see the service name "demo", try refreshing the Roll the Dice app p
 
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/930107d9-08b2-417a-b41d-5a2d80e54cc8" />
 
-It consists of `span attributes` (i.e. routes, method, errors)  to help you understand the behavior of your app.
+It consists of `span attributes` (e.g., routes, method, errors) to help you understand app behavior.
 
 **The `Process` section shows information about the app or service that created the trace.**
 
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/b17572ff-1ac3-4559-a997-e0ab1e382923" />
 
-It consists of `resource attributes` that present info about the machine it ran on, and the command used to start it. 
+It consists of `resource attributes` that describe the machine it ran on and the command used to start it. 
 
 It helps you see where the request came from and which service handled it.
-
 
 # Episode 4 -  Automatic Instrumentation Module
 - When should I use instrumentation
