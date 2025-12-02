@@ -1,9 +1,39 @@
+Episode 1: What is OTel?
+
+Episode 2: Overview: Kickstart Your Trace Pipeline with OTel
+Learning environment architecture
+Objectives 
+Resources
+
+Episode 3: Set Up Your Learning Environment: Ready, Steady, Trace!
+
+Episode 4: OTel Auto Instrumentation: Let Your App Do the Talking
+When should I use instrumentation
+Zero code vs auto instrumentation
+Manual instrumentation 
+Custom instrumentation
+
+Episode 5: Back to Basics: Bare Bones OTel Collector Configuration
+When should I use the collector? 
+OTLPTrace exporter for sending it directly
+https://squaredup.com/blog/auto-instrumenting-node-js-with-opentelemetry-jaeger/
+
+Episode 6: Processing Traces: OTel Collector in Action
+Process function
+What is 
+
+
+
 # OpenTelemetry for Beginners - The JavaScript Journey
 
 When first getting started with OpenTelemetry, it could feel overwhelming to know where to get started. 
 Get a hands on experience through this beginner series designed for JS developers.  
 
-# Environment architecture
+# Episode 1 - What is OpenTelemtry?
+![Watch the video](https://youtu.be/iEEIabOha8U)
+
+# Episode 2 - Overview: Kickstart Your Trace Pipeline with OTel
+## Learning environment architecture
 <img width="1906" alt="image" src="https://github.com/user-attachments/assets/71773bfa-e488-4e8f-92fd-d36468827a75" />
 
 ## Objectives 
@@ -16,6 +46,18 @@ Note:
 
 <img width="1918" alt="image" src="https://github.com/user-attachments/assets/a398be28-3bbc-4895-b343-8cbc09fac606" />
 
+## Resources
+- [OTel documentation](https://opentelemetry.io/docs/)
+  - Ask AI (⌘+K)
+  - [Language APIs and SDKs](https://opentelemetry.io/docs/languages/)
+  - [Instrumentation](https://opentelemetry.io/docs/concepts/instrumentation/)
+  - [OTel Collector](https://opentelemetry.io/docs/collector/)
+    - [List of OTel Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) 
+- [OTel YouTube channel](https://www.youtube.com/@otel-official)
+  - [OTel for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
+    - Stay tuned for videos on this talk + working with other telemetry types.
+- [OTel Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
+
 ## Two project branches 
 1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
 - Instruments the Roll the Dice app and sends the traces to the OTel Collector.
@@ -24,7 +66,7 @@ Note:
 - Uses the same setup as original-setup, but applies processors to traces. 
 - These processors enrich and clean up resource and attribute data, and batch traces for more efficient exporting.
 
-## QR Code
+#  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
 ## Run the demo locally
 **Before getting started, make sure you install:**
@@ -102,7 +144,14 @@ It consists of `resource attributes` that present info about the machine it ran 
 
 It helps you see where the request came from and which service handled it.
 
-## Auto-instrumentation
+
+# Episode 4 -  Automatic Instrumentation Module
+- When should I use instrumentation
+- Zewro code vs auto instrumentation
+- Manual insetrumentation
+- Custom  instrumentation 
+
+# Episode 5 - Back to Basics: Bare Bones OpenTelemetry Collector Configuration
 
 In our setup, the following OTel packages have been installed:  
 ```
@@ -298,9 +347,9 @@ docker compose up --build
 <img width="1907" alt="image" src="https://github.com/user-attachments/assets/a00d6934-8079-4513-9ee9-eb687fbdb503" />
 
 
-### New OTel Collector configuration
+# Episode 6 - Processing Traces: OpenTelemtry Collector in Action
 
-**Add 3 processors to the original OTel Collector configuration.** 
+**Add 3 processors to the original OpenTelemetry Collector configuration.** 
 - `resource` 
 - `attributes` 
 - `batch` 
@@ -515,8 +564,3 @@ The `batch` processor should be listed **last** to group the data into batches b
     - Stay tuned for videos on this talk + working with other telemetry types.
 - [OTel Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
 
-## QR code for project repo:
-![undefined](https://github.com/user-attachments/assets/cd920546-e4e2-4b29-8001-7d72e4ef3da6)
-
-## QR code for lightning talk 
-![image](https://image-charts.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=https://sched.co/25vDo)
