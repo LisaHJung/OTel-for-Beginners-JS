@@ -1,70 +1,47 @@
-Episode 1: What is OTel?
-
-Episode 2: Overview: Kickstart Your Trace Pipeline with OTel
-Learning environment architecture
-Objectives 
-Resources
-
-Episode 3: Set Up Your Learning Environment: Ready, Steady, Trace!
-
-Episode 4: OTel Auto Instrumentation: Let Your App Do the Talking
-When should I use instrumentation
-Zero code vs auto instrumentation
-Manual instrumentation 
-Custom instrumentation
-
-Episode 5: Back to Basics: Bare Bones OTel Collector Configuration
-When should I use the collector? 
-OTLPTrace exporter for sending it directly
-https://squaredup.com/blog/auto-instrumenting-node-js-with-opentelemetry-jaeger/
-
-Episode 6: Processing Traces: OTel Collector in Action
-Process function
-What is 
-
-
-
 # OpenTelemetry for Beginners - The JavaScript Journey
 
-When first getting started with OpenTelemetry, it could feel overwhelming to know where to get started. 
-Get a hands on experience through this beginner series designed for JS developers.  
+Getting started with OpenTelemetry can feel overwhelming, but this beginner series for JavaScript developers will guide you step by step.
 
-# Episode 1 - What is OpenTelemtry?
+First, we’ll answer the question: What is OpenTelemetry?
+
+# Episode 1 - What is OpenTelemetry?
+🎬 Watch this video to learn what OpenTelemetry is and why it matters.
 
 [![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)]([https://www.youtube.com/watch?v=fZRwVwCvLAg](https://youtu.be/iEEIabOha8U))
 
-# Episode 2 - Overview: Kickstart Your Trace Pipeline with OTel
-## Learning environment architecture
+Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 to explore the architecture and objectives that will kickstart your trace pipeline.
+
+# Episode 2 - Overview: Kickstart Your Trace Pipeline with OpenTelemetry
+## Learning Environment Architecture
 <img width="1906" alt="image" src="https://github.com/user-attachments/assets/71773bfa-e488-4e8f-92fd-d36468827a75" />
 
 ## Objectives 
-- Auto-instrument a Node.js app with Auto Instrumentation Module to generate traces and send traces to the OTel Collector.
-- Configure the OTel Collector to receive, process, and export traces to the Jaeger backend.
+- Instrument a Node.js app using the Auto Instrumentation Module to generate traces and send them to the OpenTelemetry Collector.
+- Configure the OpenTelemetry Collector to receive, process, and export traces to the Jaeger backend.
 - Use the Jaeger UI to visualize and verify that the traces have been correctly processed.
 
-Note:
-- Docker runs the OTel Collector and Jaeger side by side with our app, for easy set up and integration. 
+**Note:**
+- Docker runs the OTel Collector and Jaeger side by side with our app for easy setup and integration. 
 
 <img width="1918" alt="image" src="https://github.com/user-attachments/assets/a398be28-3bbc-4895-b343-8cbc09fac606" />
 
 ## Resources
-- [OTel documentation](https://opentelemetry.io/docs/)
-  - Ask AI (⌘+K)
+- [OpenTelemetry documentation](https://opentelemetry.io/docs/)
+  - Ask AI (⌘+K shortcut)
   - [Language APIs and SDKs](https://opentelemetry.io/docs/languages/)
   - [Instrumentation](https://opentelemetry.io/docs/concepts/instrumentation/)
-  - [OTel Collector](https://opentelemetry.io/docs/collector/)
-    - [List of OTel Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) 
-- [OTel YouTube channel](https://www.youtube.com/@otel-official)
-  - [OTel for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
-    - Stay tuned for videos on this talk + working with other telemetry types.
-- [OTel Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
+  - [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)
+    - [List of OpenTelemetry Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) 
+- [OpenTelemetry YouTube channel](https://www.youtube.com/@otel-official)
+  - [OpenTelemetry for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
+- [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
 
 ## Two project branches 
 1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
-- Instruments the Roll the Dice app and sends the traces to the OTel Collector.
-- The Collector forwards the traces to Jaeger for storage and visualization.
+- Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
+- The Collector forwards traces to Jaeger for storage and visualization.
 2. [`post-processing`](https://github.com/LisaHJung/O4B/tree/post-processing) 
-- Uses the same setup as original-setup, but applies processors to traces. 
+- Uses the same setup as traces-barebones-setup, but applies processors to traces. 
 - These processors enrich and clean up resource and attribute data, and batch traces for more efficient exporting.
 
 #  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
