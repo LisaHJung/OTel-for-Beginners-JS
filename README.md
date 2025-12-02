@@ -55,7 +55,7 @@ Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 
 **Clone the project**
 ```
 //directory of your choice
-git clone https://github.com/LisaHJung/Getting-started-with-OTel-in-15-minutes.git
+git clone https://github.com/LisaHJung/REPLACE-THIS-WITH-CORRECT-REPO.git
 ```
 **Start the server**
 
