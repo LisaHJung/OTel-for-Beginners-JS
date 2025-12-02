@@ -30,7 +30,8 @@ When first getting started with OpenTelemetry, it could feel overwhelming to kno
 Get a hands on experience through this beginner series designed for JS developers.  
 
 # Episode 1 - What is OpenTelemtry?
-![Watch the video](https://youtu.be/iEEIabOha8U)
+
+[![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)]([https://www.youtube.com/watch?v=fZRwVwCvLAg](https://youtu.be/iEEIabOha8U))
 
 # Episode 2 - Overview: Kickstart Your Trace Pipeline with OTel
 ## Learning environment architecture
