@@ -40,7 +40,7 @@ Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 
 1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
 - Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
 - The Collector forwards traces to Jaeger for storage and visualization.
-2. [`post-processing`](https://github.com/LisaHJung/O4B/tree/post-processing) 
+2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) 
 - Uses the same setup as traces-barebones-setup, but applies processors to traces. 
 - These processors enrich and clean up resource and attribute data, and batch traces for more efficient exporting.
 
