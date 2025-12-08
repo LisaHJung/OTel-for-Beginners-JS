@@ -315,7 +315,7 @@ service:
 
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
 
-## Process traces using the OTel Collector 
+# Episode 6 - Processing Traces: OpenTelemetry Collector in Action
 
 **Switch to the [`post-processing`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal.**
 ```
@@ -336,9 +336,6 @@ docker compose up --build
 <img width="1904" alt="image" src="https://github.com/user-attachments/assets/a56ee9af-5db1-4807-951f-262074042641" />
 
 <img width="1907" alt="image" src="https://github.com/user-attachments/assets/a00d6934-8079-4513-9ee9-eb687fbdb503" />
-
-
-# Episode 6 - Processing Traces: OpenTelemtry Collector in Action
 
 **Add 3 processors to the original OpenTelemetry Collector configuration.** 
 - `resource` 
