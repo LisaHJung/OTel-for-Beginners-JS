@@ -315,12 +315,12 @@ service:
 
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
 
-# Episode 6 - Processing Traces: OpenTelemetry Collector in Action
+# Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
-**Switch to the [`post-processing`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal.**
+**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal.**
 ```
 //in the directory of the project
-git checkout post-processing
+git checkout traces-add-processors
 ``` 
 **Stop and restart the OTel Collector and Jaeger.**
 ```
@@ -328,7 +328,7 @@ git checkout post-processing
 CTRL + C
 docker compose up --build 
 ```
-**Refresh the Roll the Dice app page multiple times to send the traces to the newly configured OTel Collector.**
+**Refresh the Roll the Dice app page multiple times to send the traces to the newly configured OpenTelemetry Collector.**
 
 <img width="1040" alt="image" src="https://github.com/user-attachments/assets/36081b69-8d28-4e16-9afa-86957759fc90" />
 
