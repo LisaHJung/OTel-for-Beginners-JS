@@ -135,14 +135,24 @@ Using OpenTelemetry, we can instrument your code in two primary ways:
 
 `Code-based` solutions give you deeper insight by generating rich telemetry directly from your application. Using the OpenTelemetry API, you can create custom traces, metrics, and logs that complement the data collected automatically by zero-code solutions.
 
+In this episode, we will use zero-code solutions to instrument our app to generate traces you will visualize using Jaeger. 
 
 In our setup, the following OTel packages have been installed:  
 ```
+# In the project directory
 npm install @opentelemetry/sdk-node \
   @opentelemetry/auto-instrumentations-node \
   @opentelemetry/exporter-trace-otlp-grpc
 ```
+`@opentelemetry/sdk-node` is the core OpenTelemetry SDK for Node.js. It gives your app the tools it needs to generate, manage, and collect telemetry such as traces and metrics.
+
+With `@opentelemetry/auto-instrumentations-node`, popular Node.js libraries and frameworks are instrumented automatically, allowing your app to generate telemetry with zero code changes.
+
+`@opentelemetry/exporter-trace-otlp-grpc` sends the telemetry your app generates to any OTLP-compatible collector or backend over gRPC, moving trace data out of your app so it can be processed, stored, and visualized.
+
 **instrumentation.js**
+
+This file prepares your app to generate traces through auto-instrumentation and send this trace data to a collector or backend.
 
 ```
 const opentelemetry = require('@opentelemetry/sdk-node');
@@ -165,16 +175,16 @@ const sdk = new opentelemetry.NodeSDK({
 sdk.start();
 ```
 
-`instrumentation.js` completes four tasks:
+`instrumentation.js` performs four main tasks:
 
-1. Import the required OTel packages needed for tracing:
+1. Import the OTel packages required for tracing:
 ```
 const opentelemetry = require('@opentelemetry/sdk-node');
 const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
 ```
 
-2. Set up the tracing system within our app by creating a new instance of the NodeSDK:
+2. Initialize the tracing system by creating a new NodeSDK instance:
 
 ```
 const sdk = new opentelemetry.NodeSDK({
@@ -182,7 +192,7 @@ const sdk = new opentelemetry.NodeSDK({
 });
 ```
 
-3. Configure the tracing system to automatically generate traces and export traces to the local OTel Collector:
+3. Configure the system to automatically generate traces and send them to the local OpenTelemetry Collector:
 
 ```
 const sdk = new opentelemetry.NodeSDK({
@@ -193,16 +203,16 @@ const sdk = new opentelemetry.NodeSDK({
 });
 
 ```
-4. Start the tracing system to begin recording traces and sending them to the Collector:
+4. Start the tracing system to begin recording and sending traces to the Collector:
 ```
 sdk.start();
 ```
 **IMPORTANT**
 
 - The instrumentation setup and configuration must run **before** your application code. 
-  - One tool commonly used for this task is the –require flag.
-- In a properly instrumented application, the servce name is set as an environment variable.
-- To meet these requirements, we added the following app "start" script to `package.json`
+  - A common way to do this is by using the –require flag.
+- In a properly instrumented application, the service name is set as an environment variable.
+- To ensure this, we added the following `start` script to `package.json` (see below):
   
 **package.json**
 
