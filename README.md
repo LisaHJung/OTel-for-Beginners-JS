@@ -237,7 +237,7 @@ sdk.start();
   }
 }
 ```
-## OTel Collector configuration
+## OTel Collector Configuration
 **otel/otel-collector-config.yaml**
 ```
 receivers:
@@ -263,12 +263,12 @@ service:
       receivers: [otlp]
       exporters: [debug, otlp/jaeger]
 ```
-**Our OTel Collector configuration consists of 3 components:**
+**Our OpenTelemetry Collector configuration is made up of three components:**
 1. Receivers
 2. Exporters
 3. Service 
 
-**`Receivers` tell the Collector how to receive telemetry data**
+**Receivers tell the Collector how to accept incoming telemetry data**
 ```
 receivers:
   otlp:
@@ -279,10 +279,10 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 ```
-- We set up the OTLP receiver to accept incoming telemetry data on two ports so it can receive data from our app.
+- The OTLP receiver is configured to accept telemetry over both gRPC (4317) and HTTP (4318).
+- This allows our app to send trace data to the Collector using standard OTLP endpoints.
   
-
-**`Exporters` send data out to OTLP-compliant backends of your choice.**
+**Exporters send data from the Collector to the OTLP-compliant backend(s) of your choice.**
 ```
 exporters:
   debug:
@@ -298,10 +298,9 @@ exporters:
   
  <img width="1040" alt="image" src="https://github.com/user-attachments/assets/36081b69-8d28-4e16-9afa-86957759fc90" />
  
-- The `otlp/jaeger` exporter sends the telemetry data to the Jaeger backend at port 4317.
+- The **`otlp/jaeger` exporter** forwards telemetry to a Jaeger backend running at port **4317**.
 
-
-**The `Service` component configures how the data flows inside the Collector.**
+**The `service` component defines how data moves through the Collector.**
 ```
 service:
   pipelines:
@@ -310,12 +309,11 @@ service:
       exporters: [debug, otlp/jaeger]
 ```
 - Our configuration defines a pipeline for traces.
-- The traces sent from the app is received by the `otlp` receiver.
-- The `debug` exporter logs traces to the terminal where the Collector is running.
-- The `otlp/jaeger` exporter forwards traces to Jaeger. 
+- The traces sent from the app is received by the **`otlp` receiver**.
+- The **`debug` exporter** logs traces to the terminal where the Collector is running.
+- The **`otlp/jaeger` exporter** forwards traces to Jaeger. 
 
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
-
 
 ## Process traces using the OTel Collector 
 
