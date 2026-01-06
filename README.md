@@ -96,7 +96,7 @@ You will be able to see the logs of traces that are flowing through the Collecto
 
 2. Click on the "Service" section (orange box) to view all the services that are sending traces to Jaeger.
 
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/5cfc0b94-990c-4e8f-9ebc-c58b73f850b2" />
+<img width="2560" height="1296" alt="image" src="https://github.com/user-attachments/assets/2fb3c82f-d65b-4400-a8a9-2a71a51658b0" />
 
 In our set up, the service name was set to "OTel4Beginners". 
 
@@ -105,23 +105,23 @@ Select the service "OTel4Beginners" then click on the "Find Traces" button (blue
 If you don't see the service name "OTel4Beginners", refresh the Roll the Dice app page a few times. Verify that the OpenTelemetry Collector is receiving telemetry by checking its logs (terminal running Docker), then refresh the Jaeger UI page again.
 
 3. Click on one of the traces (orange box)
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
+<img width="2560" height="1202" alt="image" src="https://github.com/user-attachments/assets/ca053fd9-1e96-4efa-96f5-3712d69a7033" />
 
 4. Click on its root span (Get/rolldice span)
-<img width="1919" alt="image" src="https://github.com/user-attachments/assets/b5e437b8-2cda-4760-93b6-0cc8dcbdba7b" />
+<img width="2560" height="349" alt="image" src="https://github.com/user-attachments/assets/2eaf2e07-a035-472f-9a3b-f415717c7b69" />
 
 5. Expand the `Tags` and `Process` sections to view the metadata about traces collected from the app
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/826578a3-6f3c-4a33-acfb-f76997eeb9ff" />
+<img width="2560" height="580" alt="image" src="https://github.com/user-attachments/assets/57a8a488-a38b-447f-ad6d-9bff70722304" />
 
 **The `Tags` section shows details about what happened during a request.** 
 
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/930107d9-08b2-417a-b41d-5a2d80e54cc8" />
+<img width="2560" height="981" alt="image" src="https://github.com/user-attachments/assets/2f061593-84c3-40a1-873d-b8f927c49abd" />
 
 It consists of `span attributes` (e.g., routes, method, errors) to help you understand app behavior.
 
 **The `Process` section shows information about the app or service that created the trace.**
 
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/b17572ff-1ac3-4559-a997-e0ab1e382923" />
+<img width="2560" height="982" alt="image" src="https://github.com/user-attachments/assets/55919d23-cda5-4faa-97cc-cae561ffe299" />
 
 It consists of `resource attributes` that describe the machine it ran on and the command used to start it. 
 It helps you see where the request came from and which service handled it.
