@@ -74,6 +74,11 @@ Refresh the page multiple times. This app will generate a random number from 1â€
 ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
 **Using Docker, run the OTel Collector and Jaeger**
+
+Before getting started, make sure Docker Desktop is open and running.
+
+<img width="2548" height="1440" alt="image" src="https://github.com/user-attachments/assets/34b5d38f-01b9-4294-a61e-33c6f40e3dda" />
+
 ```
 # In a different terminal, within the project directory
 docker compose up --build 
