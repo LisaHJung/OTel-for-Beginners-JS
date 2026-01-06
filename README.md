@@ -317,27 +317,27 @@ service:
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
-**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal.**
+**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal:**
 ```
 //in the directory of the project
 git checkout traces-add-processors
 ``` 
-**Stop and restart the OTel Collector and Jaeger.**
+**Stop and restart the OpenTelemetry Collector and Jaeger.**
 ```
 //in the project directory
 CTRL + C
 docker compose up --build 
 ```
-**Refresh the Roll the Dice app page multiple times to send the traces to the newly configured OpenTelemetry Collector.**
+**Refresh the Roll the Dice app page multiple times to send traces to the newly configured OpenTelemetry Collector.**
 
 <img width="1040" alt="image" src="https://github.com/user-attachments/assets/36081b69-8d28-4e16-9afa-86957759fc90" />
 
-**Using the Jaeger UI, examine the new traces to verify that they have been processed correctly.**
+**Using the Jaeger UI, examine the new traces to verify they were processed correctly.**
 <img width="1904" alt="image" src="https://github.com/user-attachments/assets/a56ee9af-5db1-4807-951f-262074042641" />
 
 <img width="1907" alt="image" src="https://github.com/user-attachments/assets/a00d6934-8079-4513-9ee9-eb687fbdb503" />
 
-**Add 3 processors to the original OpenTelemetry Collector configuration.** 
+**Add three processors to the existing OpenTelemetry Collector configuration.**
 - `resource` 
 - `attributes` 
 - `batch` 
@@ -408,7 +408,7 @@ service:
       processors: [resource, attributes, batch]
       exporters: [debug, otlp/jaeger]
 ```
-**Processors modify, filter, or enrich telemetry data within the Collector before the data gets exported**
+**Processors modify, filter, or enrich telemetry data within the Collector before it is exported.**
 
 **The `resource` processor modifies metadata about the service or host.**
 ```
@@ -435,7 +435,7 @@ processors:
       - key: process.pid
         action: delete
 ```
-- `deployment.environment.name` resource attributes was added to the incoming traces.
+- The `deployment.environment.name` resource attribute is added to incoming traces.
 
 <img width="1916" alt="image" src="https://github.com/user-attachments/assets/836b9309-1d38-4826-8354-56be141de873" />
 
@@ -463,13 +463,14 @@ processors:
       - key: process.pid
         action: delete
 ```
-The following resource attributes were deleted to remove sensitive or irrelevant data.
-This is done to reduce noise, improve privacy, and keep trace data focused.
+The following resource attributes were deleted to remove sensitive or irrelevant data.  
+This helps reduce noise, improve privacy, and keep trace data focused.
+
   - host.arch
   - host.id
   - host.name
   - process.command
-  - process.command_asrgs
+  - process.command_args
   - process.executable.path
   - process.owner
   - process.pid
@@ -497,14 +498,13 @@ attributes:
         action: delete
 ```
 
-The following resource attributes were deleted to remove sensitive or personally identifiable information (PII). 
+The following span attributes were deleted to remove sensitive or personally identifiable information (PII):
   - http.user_agent
   - net.peer.ip
   - net.host.port
-  - net.peer.ip
   - net.peer.port
 
-Deleting them enhances privacy and security compliance and reduces the size of trace payloads.  
+Deleting these attributes enhances privacy, improves security compliance, and reduces the size of trace payloads.
 
 **Old traces from the original OTel Collector configuration:**
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/c138b6d7-bce3-4691-b992-693a90bbeebe" />
@@ -519,11 +519,11 @@ batch:
     send_batch_size: 512
 
 ```
-For best practice, add the `batch` processor to the Collector configuration to improve performance and reduce overhead. 
+As a best practice, add the `batch` processor to the Collector configuration to improve performance and reduce overhead.
 
-Adjust the parameters to serve your use case. 
+Adjust these parameters to fit your specific use case.
 
-**The Service component was updated to include the processors that have been added.**
+**The service component was updated to include the newly added processors.**
 ```
 service:
   pipelines:
@@ -535,7 +535,7 @@ service:
 
 **IMPORTANT**
 
-In the `service` component, you must pay attention to the order in which the proccessors are listed as processors are applied sequentially!
+In the `service` component, you must pay attention to the order in which processors are listed, as they are applied sequentially.
 
 The `batch` processor should be listed **last** to group the data into batches before exporting. 
 
