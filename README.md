@@ -93,11 +93,11 @@ You will be able to see the logs of traces that are flowing through the Collecto
 
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/5cfc0b94-990c-4e8f-9ebc-c58b73f850b2" />
 
-In our set up, the service name was set to "demo". 
+In our set up, the service name was set to "OTel4Beginners". 
 
-Select the service "demo" then click on the "Find Traces" button (blue arrow).
+Select the service "OTel4Beginners" then click on the "Find Traces" button (blue arrow).
 
-If you don't see the service name "demo", refresh the Roll the Dice app page a few times. Verify that the OpenTelemetry Collector is receiving telemetry by checking its logs (terminal running Docker), then refresh the Jaeger UI page again.
+If you don't see the service name "OTel4Beginners", refresh the Roll the Dice app page a few times. Verify that the OpenTelemetry Collector is receiving telemetry by checking its logs (terminal running Docker), then refresh the Jaeger UI page again.
 
 3. Click on one of the traces (orange box)
 <img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
