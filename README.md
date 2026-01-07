@@ -89,7 +89,7 @@ Take a look at the terminal that is running Docker.
 
 You will be able to see the logs of traces that are flowing through the Collector.
 
-<img width="1040" alt="image" src="https://github.com/user-attachments/assets/36081b69-8d28-4e16-9afa-86957759fc90" />
+<img width="997" height="990" alt="image" src="https://github.com/user-attachments/assets/183a32a9-2752-4f56-a770-b76292019859" />
 
 **Verify that the OTel Collector is sending traces to the Jaeger backend**
 1. Go to the following URL (http://localhost:16686/) to access the Jaeger UI. 
