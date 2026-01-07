@@ -324,7 +324,7 @@ service:
 
 **Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal:**
 ```
-//in the directory of the project
+//in the project directory
 git checkout traces-add-processors
 ``` 
 **Stop and restart the OpenTelemetry Collector and Jaeger.**
@@ -335,12 +335,11 @@ docker compose up --build
 ```
 **Refresh the Roll the Dice app page multiple times to send traces to the newly configured OpenTelemetry Collector.**
 
-<img width="1040" alt="image" src="https://github.com/user-attachments/assets/36081b69-8d28-4e16-9afa-86957759fc90" />
+<img width="890" height="997" alt="image" src="https://github.com/user-attachments/assets/a8c0a4d1-9244-40da-8b8c-1f508547e9cb" />
 
 **Using the Jaeger UI, examine the new traces to verify they were processed correctly.**
-<img width="1904" alt="image" src="https://github.com/user-attachments/assets/a56ee9af-5db1-4807-951f-262074042641" />
-
-<img width="1907" alt="image" src="https://github.com/user-attachments/assets/a00d6934-8079-4513-9ee9-eb687fbdb503" />
+<img width="2560" height="1234" alt="image" src="https://github.com/user-attachments/assets/2b6a0d10-bbac-4925-ad2a-b8bf8b8f30a7" />
+<img width="2560" height="1013" alt="image" src="https://github.com/user-attachments/assets/c60774ba-fb26-43c6-82b4-631821f13753" />
 
 **Add three processors to the existing OpenTelemetry Collector configuration.**
 - `resource` 
@@ -442,7 +441,7 @@ processors:
 ```
 - The `deployment.environment.name` resource attribute is added to incoming traces.
 
-<img width="1916" alt="image" src="https://github.com/user-attachments/assets/836b9309-1d38-4826-8354-56be141de873" />
+<img width="2560" height="994" alt="image" src="https://github.com/user-attachments/assets/a057f3c0-8af6-4eb6-a435-c6f2c30290ca" />
 
 ```
 processors:
@@ -481,10 +480,10 @@ This helps reduce noise, improve privacy, and keep trace data focused.
   - process.pid
 
 **Old traces from the original OTel Collector configuration:**
-<img width="1905" alt="image" src="https://github.com/user-attachments/assets/d54248b6-2dd8-4ff2-a4d5-515cdd8ad7fb" />
+<img width="2558" height="1295" alt="image" src="https://github.com/user-attachments/assets/5c66290e-46c0-4d91-8a4b-aeb347d042f8" />
 
 **New traces from the new OTel Collector configuration:**
-<img width="1916" alt="image" src="https://github.com/user-attachments/assets/a0da2cef-e183-42d9-9520-4fb9b4b46f4b" />
+<img width="2560" height="995" alt="image" src="https://github.com/user-attachments/assets/7225ae17-fba8-4850-8ca2-f98a7e4fe240" />
 
 **The `attributes` processor modifies, adds, or removes span attributes.**
 
@@ -512,10 +511,10 @@ The following span attributes were deleted to remove sensitive or personally ide
 Deleting these attributes enhances privacy, improves security compliance, and reduces the size of trace payloads.
 
 **Old traces from the original OTel Collector configuration:**
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/c138b6d7-bce3-4691-b992-693a90bbeebe" />
+<img width="2557" height="1324" alt="image" src="https://github.com/user-attachments/assets/94fad5ad-7760-4392-93a2-ade8ee1335f4" />
 
 **New traces from the new OTel Collector configuration:**
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/485c084c-4144-4b24-895b-d6b27a228f18" />
+<img width="2559" height="1230" alt="image" src="https://github.com/user-attachments/assets/f82d4cad-d184-4b0e-ab19-75400b44ac4f" />
 
 **The `batch` processor groups telemetry data into batches before exporting.**
 ```
