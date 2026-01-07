@@ -105,23 +105,23 @@ Select the service "OTel4Beginners" then click on the "Find Traces" button (blue
 If you don't see the service name "OTel4Beginners", refresh the Roll the Dice app page a few times. Verify that the OpenTelemetry Collector is receiving telemetry by checking its logs (terminal running Docker), then refresh the Jaeger UI page again.
 
 3. Click on one of the traces (orange box)
-<img width="2560" height="1202" alt="image" src="https://github.com/user-attachments/assets/ca053fd9-1e96-4efa-96f5-3712d69a7033" />
+<img width="2544" height="1266" alt="image" src="https://github.com/user-attachments/assets/a3a509e5-0851-48e7-ba0e-087e8ceafbbe" />
 
 4. Click on its root span (Get/rolldice span)
-<img width="2560" height="349" alt="image" src="https://github.com/user-attachments/assets/2eaf2e07-a035-472f-9a3b-f415717c7b69" />
+<img width="2559" height="511" alt="image" src="https://github.com/user-attachments/assets/459a28ed-c7f1-4d0b-b6e1-0529cf709d75" />
 
 5. Expand the `Tags` and `Process` sections to view the metadata about traces collected from the app
-<img width="2560" height="580" alt="image" src="https://github.com/user-attachments/assets/57a8a488-a38b-447f-ad6d-9bff70722304" />
+<img width="2558" height="660" alt="image" src="https://github.com/user-attachments/assets/1138c2b9-dd0e-41ea-9aa5-c62ccb7150c7" />
 
 **The `Tags` section shows details about what happened during a request.** 
 
-<img width="2560" height="981" alt="image" src="https://github.com/user-attachments/assets/2f061593-84c3-40a1-873d-b8f927c49abd" />
+<img width="2560" height="1321" alt="image" src="https://github.com/user-attachments/assets/acdd9538-b114-4987-8446-acb11312dddf" />
 
 It consists of `span attributes` (e.g., routes, method, errors) to help you understand app behavior.
 
 **The `Process` section shows information about the app or service that created the trace.**
 
-<img width="2560" height="982" alt="image" src="https://github.com/user-attachments/assets/55919d23-cda5-4faa-97cc-cae561ffe299" />
+<img width="2553" height="1305" alt="image" src="https://github.com/user-attachments/assets/65577f59-8850-4344-ad63-2a71fef2e818" />
 
 It consists of `resource attributes` that describe the machine it ran on and the command used to start it. 
 It helps you see where the request came from and which service handled it.
