@@ -301,7 +301,7 @@ exporters:
 - The `debug` exporter prints the telemetry data to the Collector’s logs in a detailed way.
   - It displays what data is flowing through the Collector and is useful for debugging or development. 
   
- <img width="1040" alt="image" src="https://github.com/user-attachments/assets/36081b69-8d28-4e16-9afa-86957759fc90" />
+<img width="997" height="990" alt="image" src="https://github.com/user-attachments/assets/183a32a9-2752-4f56-a770-b76292019859" />
  
 - The **`otlp/jaeger` exporter** forwards telemetry to a Jaeger backend running at port **4317**.
 
@@ -318,7 +318,7 @@ service:
 - The **`debug` exporter** logs traces to the terminal where the Collector is running.
 - The **`otlp/jaeger` exporter** forwards traces to Jaeger. 
 
-<img width="1920" alt="image" src="https://github.com/user-attachments/assets/cf2e0018-c332-4c92-9ebf-9e88f86d8f6b" />
+<img width="2544" height="1266" alt="image" src="https://github.com/user-attachments/assets/a3a509e5-0851-48e7-ba0e-087e8ceafbbe" />
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
