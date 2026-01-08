@@ -215,29 +215,8 @@ sdk.start();
 - In a properly instrumented application, the service name is set as an environment variable.
 - To ensure this, we added the following `start` script to `package.json` (see below):
   
-**package.json**
+<img width="2552" height="1369" alt="image" src="https://github.com/user-attachments/assets/c2d377c1-6b03-4b6c-9dc1-f9f419d77f95" />
 
-```
-{
-  "name": "latest",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    **"start": "OTEL_SERVICE_NAME=demo node --require ./instrumentation.js app.js"**
-  },
-  "keywords": [],
-  "author": "",   
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@opentelemetry/auto-instrumentations-node": "^0.60.1",
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.202.0",
-    "@opentelemetry/sdk-node": "^0.202.0",
-    "express": "^5.1.0"
-  }
-}
-```
 ## OTel Collector Configuration
 **otel/otel-collector-config.yaml**
 ```
