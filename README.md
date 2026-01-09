@@ -297,17 +297,21 @@ service:
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
-**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch using your terminal:**
+**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch:**
 ```
-//in the project directory
+# in one terminal, from the project directory
 git checkout traces-add-processors
 ``` 
-**Stop and restart the OpenTelemetry Collector and Jaeger.**
+**In the terminal running Docker, stop and restart the OpenTelemetry Collector and Jaeger.**
 ```
-//in the project directory
+//stopo the running containers
 CTRL + C
+
+# restart with the updated configuration
 docker compose up --build 
 ```
+This reloads the Collector with the updated processor configuration. 
+
 **Refresh the Roll the Dice app page multiple times to send traces to the newly configured OpenTelemetry Collector.**
 
 <img width="890" height="997" alt="image" src="https://github.com/user-attachments/assets/a8c0a4d1-9244-40da-8b8c-1f508547e9cb" />
