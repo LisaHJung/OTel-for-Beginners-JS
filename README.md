@@ -45,6 +45,8 @@ To get there, we’ll set up a baseline trace flow,  just the essentials.
   - [OpenTelemetry for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
 - [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
 
+Now that you’ve covered the pipeline architecture in Episode 2, let’s move on to Episode 3 to set up the learning environment.
+
 #  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
 ## Run the learning environment locally
@@ -56,7 +58,7 @@ To get there, we’ll set up a baseline trace flow,  just the essentials.
 **Clone the project**
 ```
 # Choose a directory of your choice
-git clone https://github.com/LisaHJung/REPLACE-THIS-WITH-CORRECT-REPO.git
+git clone https://github.com/open-telemetry/opentelemetry-for-beginners.git
 ```
 **Start the server**
 
@@ -74,7 +76,7 @@ Refresh the page multiple times. This app will generate a random number from 1�
 
 ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
-**Using Docker, run the OTel Collector and Jaeger**
+**Using Docker, run the OpenTelemetry Collector and Jaeger**
 
 Before getting started, make sure Docker Desktop is open and running.
 
@@ -84,7 +86,7 @@ Before getting started, make sure Docker Desktop is open and running.
 # In a different terminal, within the project directory
 docker compose up --build 
 ```
-**Refresh the Roll the Dice app page multiple times to send traces to the OTel Collector**
+**Refresh the Roll the Dice app page multiple times to send traces to the OpenTelemetry Collector**
 
 Take a look at the terminal that is running Docker.
 
@@ -92,7 +94,7 @@ You will be able to see the logs of traces that are flowing through the Collecto
 
 <img width="997" height="990" alt="image" src="https://github.com/user-attachments/assets/183a32a9-2752-4f56-a770-b76292019859" />
 
-**Verify that the OTel Collector is sending traces to the Jaeger backend**
+**Verify that the OpenTelemetry Collector is sending traces to the Jaeger backend**
 1. Go to the following URL (http://localhost:16686/) to access the Jaeger UI. 
 
 2. Click on the "Service" section (orange box) to view all the services that are sending traces to Jaeger.
