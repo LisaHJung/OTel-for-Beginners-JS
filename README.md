@@ -25,6 +25,14 @@ Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 
 
 <img width="1918" alt="image" src="https://github.com/user-attachments/assets/a398be28-3bbc-4895-b343-8cbc09fac606" />
 
+**Before we dive into fancy processing, we need to know what our data actually looks like.**
+To get there, we’ll set up a baseline trace flow,  just the essentials.
+
+<img width="2554" height="1435" alt="image" src="https://github.com/user-attachments/assets/f6713274-9dab-423d-91d9-fd7462eb60d4" />
+
+**Next, we’ll keep the same setup and introduce processors to modify trace data, then verify the results in the Jaeger UI.**
+<img width="2558" height="1436" alt="image" src="https://github.com/user-attachments/assets/ec01118b-e02e-49ef-80bb-913b0f66811a" />
+
 ## Resources
 - [OpenTelemetry documentation](https://opentelemetry.io/docs/)
   - Ask AI (⌘+K shortcut)
