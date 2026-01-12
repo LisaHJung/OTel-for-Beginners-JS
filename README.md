@@ -36,17 +36,9 @@ Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 
   - [OpenTelemetry for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
 - [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
 
-## Two project branches 
-1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
-- Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
-- The Collector forwards traces to Jaeger for storage and visualization.
-2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) 
-- Uses the same setup as traces-barebones-setup, but applies processors to traces. 
-- These processors enrich and clean up resource and attribute data, and batch traces for more efficient exporting.
-
 #  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
-## Run the Demo Locally
+## Run the learning environment locally
 **Before getting started, make sure you have installed:
 - [Node.js](https://nodejs.org/en/download/) 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
@@ -321,6 +313,13 @@ This helps reduce noise, improve privacy, and keep trace data focused.
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
+## Two project branches 
+1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
+- Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
+- The Collector forwards traces to Jaeger for storage and visualization.
+2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) 
+- Uses the same setup as traces-barebones-setup, but applies processors to traces. 
+- These processors enrich and clean up resource and attribute data, and batch traces for more efficient exporting.
 **Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch:**
 ```
 # in one terminal, from the project directory
