@@ -124,7 +124,7 @@ Using OpenTelemetry, we can instrument your code in two primary ways:
 
 `Manual instrumentation` gives you deeper insight by generating rich telemetry directly from your application. Using the OpenTelemetry API, you can create custom traces, metrics, and logs that complement the data collected automatically.
 
-In this episode, we will focus on automatic instrumentation so we can generate traces and visualize them in Jaeger. 
+In this episode, we will focus on `automatic instrumentation` so we can generate traces and visualize them in Jaeger. 
 
 In our setup, the following OTel packages have been installed:  
 <img width="2087" height="1145" alt="image" src="https://github.com/user-attachments/assets/b3848c07-d99d-4f92-9817-551fc66bf1ef" />
@@ -194,10 +194,10 @@ sdk.start();
 ```
 **IMPORTANT**
 
-- The instrumentation setup and configuration must run **before** your application code. 
-  - A common way to do this is by using the –require flag.
-- In a properly instrumented application, the service name is set as an environment variable.
-- To ensure this, we added the following `start` script to `package.json` (see below):
+- The instrumentation setup and configuration must run **before** your application code.
+  - A common way to ensure this is by using the `--require` flag.
+- In a properly instrumented application, the service name is set using an environment variable, for example `OTEL_SERVICE_NAME=OTel4Beginners`.
+- To ensure this, we added the following `start` script to `package.json` (see below).
   
 <img width="2552" height="1369" alt="image" src="https://github.com/user-attachments/assets/c2d377c1-6b03-4b6c-9dc1-f9f419d77f95" />
 
