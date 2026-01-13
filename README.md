@@ -351,7 +351,7 @@ git checkout traces-add-processors
 ``` 
 **In the terminal running Docker, stop and restart the OpenTelemetry Collector and Jaeger.**
 ```
-//stop the running containers
+# stop the running containers
 CTRL + C
 
 # restart with the updated configuration
@@ -472,11 +472,14 @@ processors:
       - key: process.pid
         action: delete
 ```
-- The `deployment.environment.name` resource attribute is added to incoming traces.
+**In this configuration, the resource processor inserts a new resource attribute called `deployment.environment.name` and sets its value to `local`.**
 
+This makes it easier to identify where traces are coming from when working across multiple environments.
+
+**Newly processed trace**
 <img width="2560" height="994" alt="image" src="https://github.com/user-attachments/assets/a057f3c0-8af6-4eb6-a435-c6f2c30290ca" />
 
-- In addition, the following resource attributes were deleted to remove sensitive or irrelevant data.  
+**In addition, the following resource attributes were deleted to remove low-value or sensitive host and process metadata.**  
 
 ```
 processors:
