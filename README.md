@@ -310,7 +310,7 @@ These attributes will be addressed and cleaned up in a later episode using OpenT
 
 **The `Process` section shows information about the app or service that created the trace.**
 
-<img width="2553" height="1305" alt="image" src="https://github.com/user-attachments/assets/65577f59-8850-4344-ad63-2a71fef2e818" />
+<img width="2557" height="1292" alt="image" src="https://github.com/user-attachments/assets/a8db5812-9c12-47e3-a87e-f41a8c722fc9" />
 
 This section contains some sensitive or low-value host and process details.
 While the values are blurred in the screenshots, the attribute types shown are included by default.
