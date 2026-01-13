@@ -331,11 +331,17 @@ Now that traces are being generated and exported through the Collector, we can s
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
 ## Project branches 
-1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
+1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup) (**Episode 4**)
+
+<img width="2559" height="1438" alt="image" src="https://github.com/user-attachments/assets/4951d1c6-534a-46b7-a917-e8beaa5fb8a1" />
+
 - Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
 - The Collector forwards traces to Jaeger for storage and visualization with no additional processing.
 
-2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) 
+2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) (**Current episode**)
+
+<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/a617811d-5a3c-4430-bf11-c7da506f39d2" />
+
 - Uses the same setup as `traces-barebones-setup`, but applies processors to incoming traces.
 - These processors enrich resource metadata, remove low-value or sensitive attributes, and batch traces for more efficient exporting.
   
@@ -355,14 +361,19 @@ docker compose up --build
 This reloads the Collector with the updated processor configuration. 
 
 **Refresh the Roll the Dice app page multiple times to send traces to the newly configured OpenTelemetry Collector.**
-
+![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 <img width="890" height="997" alt="image" src="https://github.com/user-attachments/assets/a8c0a4d1-9244-40da-8b8c-1f508547e9cb" />
 
-**Using the Jaeger UI, examine the new traces to verify they were processed correctly.**
-<img width="2560" height="1234" alt="image" src="https://github.com/user-attachments/assets/2b6a0d10-bbac-4925-ad2a-b8bf8b8f30a7" />
-<img width="2560" height="1013" alt="image" src="https://github.com/user-attachments/assets/c60774ba-fb26-43c6-82b4-631821f13753" />
+**Open the Jaeger UI and take a look at the new traces coming in.**
+<img width="2542" height="1267" alt="image" src="https://github.com/user-attachments/assets/7f4a5cb5-f59f-4d77-b640-7cf0a8e7eb1a" />
 
-**Add three processors to the existing OpenTelemetry Collector configuration to modify trace data before export.**
+Now that we’ve confirmed the newly transformed traces are flowing through the Collector, let’s examine the updated configuration to understand how trace data is processed before export.
+
+After that, we’ll look at the new traces in more detail to see how the processors have transformed them.
+
+## New OpenTelemetry Collector Configuration
+
+### Three processors have been added to the existing OpenTelemetry Collector configuration to modify trace data before export:
 - `resource` 
 - `attributes` 
 - `batch` 
@@ -433,7 +444,7 @@ service:
       processors: [resource, attributes, batch]
       exporters: [debug, otlp/jaeger]
 ```
-**Processors modify, filter, or enrich telemetry data within the Collector before it is exported.**
+### Processors modify, filter, or enrich telemetry data within the Collector before it is exported.
 
 **The `resource` processor modifies metadata about the service or host.**
 ```
