@@ -330,21 +330,23 @@ Now that traces are being generated and exported through the Collector, we can s
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
-## Two project branches 
+## Project branches 
 1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup)
 - Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
-- The Collector forwards traces to Jaeger for storage and visualization.
+- The Collector forwards traces to Jaeger for storage and visualization with no additional processing.
+
 2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) 
-- Uses the same setup as traces-barebones-setup, but applies processors to traces. 
-- These processors enrich and clean up resource and attribute data, and batch traces for more efficient exporting.
-**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch:**
+- Uses the same setup as `traces-barebones-setup`, but applies processors to incoming traces.
+- These processors enrich resource metadata, remove low-value or sensitive attributes, and batch traces for more efficient exporting.
+  
+**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch to apply the processor configuration:**
 ```
 # in one terminal, from the project directory
 git checkout traces-add-processors
 ``` 
 **In the terminal running Docker, stop and restart the OpenTelemetry Collector and Jaeger.**
 ```
-//stopo the running containers
+//stop the running containers
 CTRL + C
 
 # restart with the updated configuration
@@ -360,7 +362,7 @@ This reloads the Collector with the updated processor configuration.
 <img width="2560" height="1234" alt="image" src="https://github.com/user-attachments/assets/2b6a0d10-bbac-4925-ad2a-b8bf8b8f30a7" />
 <img width="2560" height="1013" alt="image" src="https://github.com/user-attachments/assets/c60774ba-fb26-43c6-82b4-631821f13753" />
 
-**Add three processors to the existing OpenTelemetry Collector configuration.**
+**Add three processors to the existing OpenTelemetry Collector configuration to modify trace data before export.**
 - `resource` 
 - `attributes` 
 - `batch` 
@@ -527,7 +529,7 @@ The following span attributes were deleted to remove sensitive or personally ide
   - net.host.port
   - net.peer.port
 
-Deleting these attributes enhances privacy, improves security compliance, and reduces the size of trace payloads.
+Removing these attributes keeps span data focused on application behavior rather than client or network details.
 
 **Old traces from the original OTel Collector configuration:**
 <img width="2557" height="1324" alt="image" src="https://github.com/user-attachments/assets/94fad5ad-7760-4392-93a2-ade8ee1335f4" />
@@ -542,11 +544,12 @@ batch:
     send_batch_size: 512
 
 ```
-As a best practice, add the `batch` processor to the Collector configuration to improve performance and reduce overhead.
+As a best practice, the `batch` processor should almost always be included in production-ready Collector configurations.
 
 Adjust these parameters to fit your specific use case.
 
-**The service component was updated to include the newly added processors.**
+**The service component was updated to tie the receivers, processors, and exporters together into a traces pipeline.**
+
 ```
 service:
   pipelines:
@@ -558,20 +561,6 @@ service:
 
 **IMPORTANT**
 
-In the `service` component, you must pay attention to the order in which processors are listed, as they are applied sequentially.
-
-The `batch` processor should be listed **last** to group the data into batches before exporting. 
-
-
-## Resources
-- [OTel documentation](https://opentelemetry.io/docs/)
-  - Ask AI (⌘+K)
-  - [Language APIs and SDKs](https://opentelemetry.io/docs/languages/)
-  - [Instrumentation](https://opentelemetry.io/docs/concepts/instrumentation/)
-  - [OTel Collector](https://opentelemetry.io/docs/collector/)
-    - [List of OTel Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) 
-- [OTel YouTube channel](https://www.youtube.com/@otel-official)
-  - [OTel for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
-    - Stay tuned for videos on this talk + working with other telemetry types.
-- [OTel Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
+In the `service` component, processors are applied in the order they are listed in the pipeline.
+The `batch` processor should be listed **last** so it can batch the final version of the data before exporting.
 
