@@ -375,9 +375,9 @@ After that, we’ll look at the new traces in more detail to see how the process
 ## New OpenTelemetry Collector Configuration
 
 ### Three processors have been added to the existing Collector configuration to modify trace data before export:
-- `resource` 
-- `attributes` 
-- `batch` 
+1. `resource` 
+2. `attributes` 
+3. `batch` 
 
 **otel/otel-collector-config.yaml**
 ```
@@ -447,7 +447,7 @@ service:
 ```
 ### Processors modify, filter, or enrich telemetry data within the Collector before it is exported.
 
-**The `resource` processor modifies metadata about the service or host.**
+**1. The `resource` processor modifies metadata about the service or host.**
 ```
 processors:
   resource:
@@ -514,9 +514,10 @@ This helps reduce noise, improve privacy, and keep trace data focused.
 **New traces from the new Collector configuration:**
 <img width="2560" height="984" alt="image" src="https://github.com/user-attachments/assets/1c710cf6-b81f-4aa7-849d-d721e8ce2f55" />
 
-**The `attributes` processor modifies, adds, or removes span attributes.**
+**2. The `attributes` processor modifies, adds, or removes span attributes.**
 
-The following span attributes were deleted to remove sensitive or irrelevant data:
+The following span attributes were deleted to keep span data focused on application behavior rather than client or network details.
+
 ```
 attributes:
     actions:
@@ -531,15 +532,14 @@ attributes:
       - key: net.peer.port
         action: delete
 ```
-Removing these attributes keeps span data focused on application behavior rather than client or network details.
 
 **Old traces from the original Collector configuration:**
 <img width="2549" height="1247" alt="image" src="https://github.com/user-attachments/assets/f0aee2dc-c218-4966-b867-eb4161523ad0" />
 
 **New traces from the new Collector configuration:**
-<img width="2560" height="1099" alt="image" src="https://github.com/user-attachments/assets/8164ea06-78a3-48e7-8c14-6c92532c20bb" />
+<img width="2560" height="1190" alt="image" src="https://github.com/user-attachments/assets/7980e73b-af1f-4336-aedb-49e1eb1257c9" />
 
-**The `batch` processor groups telemetry data into batches before exporting.**
+**3. The `batch` processor groups telemetry data into batches before exporting.**
 ```
 batch:
     timeout: 5s
