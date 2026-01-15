@@ -1,13 +1,12 @@
 services:
-  jaeger:
-    image: jaegertracing/all-in-one:latest
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./otel/prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
-      - "16686:16686"   # Jaeger UI
-      - "14250:14250"   # Jaeger grpc (optional)
-      # Remove 4317 port from jaeger to avoid conflict
-    environment:
-      COLLECTOR_OTLP_ENABLED: "true"
-      COLLECTOR_OTLP_GRPC_PORT: 4317
+      - "9090:9090"   # Prometheus UI
+    depends_on:
+      - otel-collector
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -15,7 +14,6 @@ services:
       - ./otel/otel-collector-config.yaml:/etc/otelcol/config.yaml
     command: ["--config", "/etc/otelcol/config.yaml"]
     ports:
-      - "4317:4317"  # only otel-collector uses 4317 on host
-      - "4318:4318"
-    depends_on:
-      - jaeger
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus metrics endpoint

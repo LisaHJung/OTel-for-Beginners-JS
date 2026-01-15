@@ -10,13 +10,11 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlp/jaeger:
-    endpoint: jaeger:4317
-    tls:
-      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
 
 service:
   pipelines:
-    traces:
+    metrics:
       receivers: [otlp]
-      exporters: [debug, otlp/jaeger]
+      exporters: [debug, prometheus]
