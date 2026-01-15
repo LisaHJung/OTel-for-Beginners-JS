@@ -6,15 +6,99 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
+processors:
+  # Add/modify resource-level attributes (applies to both traces and metrics)
+  resource:
+    attributes:
+      - key: deployment.environment.name
+        value: local
+        action: insert
+      - key: host.arch
+        action: delete
+      - key: host.id
+        action: delete
+      - key: host.name
+        action: delete
+      - key: process.command
+        action: delete
+      - key: process.command_args
+        action: delete
+      - key: process.executable.path
+        action: delete
+      - key: process.owner
+        action: delete
+      - key: process.pid
+        action: delete
+
+  # Modify span attributes (for traces)
+  attributes/traces:
+    actions:
+      - key: http.user_agent
+        action: delete
+      - key: net.host.ip
+        action: delete
+      - key: net.peer.ip
+        action: delete
+      - key: net.host.port
+        action: delete
+      - key: net.peer.port
+        action: delete
+
+  # Modify metric datapoint attributes (for metrics)
+  attributes/metrics:
+    actions:
+      - key: net.host.ip
+        action: delete
+      - key: net.peer.ip
+        action: delete
+      - key: net.host.port
+        action: delete
+
+  # Filter out unwanted metrics to reduce cardinality
+  filter/exclude_metrics:
+    error_mode: ignore
+    metrics:
+      metric:
+        # Exclude internal runtime metrics that may be too verbose
+        - 'name == "process.runtime.nodejs.event_loop.utilization"'
+
+  # Rename and transform metrics
+  metricstransform:
+    transforms:
+      # Rename http duration metric to be more descriptive
+      - include: http.server.duration
+        action: update
+        new_name: http_server_request_duration_ms
+      # Add a prefix to all metrics from this service
+      - include: ^(.*)$$
+        match_type: regexp
+        action: update
+        new_name: app_$${1}
+
+  # Batch for efficient export
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+
 exporters:
   debug:
     verbosity: detailed
+
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
 
   prometheus:
     endpoint: 0.0.0.0:8889
 
 service:
   pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource, attributes/traces, batch]
+      exporters: [debug, otlp/jaeger]
     metrics:
       receivers: [otlp]
+      processors: [resource, attributes/metrics, filter/exclude_metrics, metricstransform, batch]
       exporters: [debug, prometheus]
