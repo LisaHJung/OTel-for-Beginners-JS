@@ -15,8 +15,14 @@ exporters:
     tls:
       insecure: true
 
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
 service:
   pipelines:
     traces:
       receivers: [otlp]
       exporters: [debug, otlp/jaeger]
+    metrics:
+      receivers: [otlp]
+      exporters: [debug, prometheus]
