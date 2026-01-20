@@ -7,7 +7,7 @@ First, we’ll answer the question: What is OpenTelemetry?
 # Episode 1 - What is OpenTelemetry?
 🎬 Watch this video to learn what OpenTelemetry is and why it matters.
 
-[![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)]([https://www.youtube.com/watch?v=fZRwVwCvLAg](https://youtu.be/iEEIabOha8U))
+[![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)](https://youtu.be/iEEIabOha8U)
 
 ## Series Resources
 - [OpenTelemetry documentation](https://opentelemetry.io/docs/)
@@ -47,7 +47,7 @@ To get there, we’ll set up a baseline trace flow, just the essentials.
 
 Now that you’ve covered the pipeline architecture in Episode 2, let’s move on to Episode 3 to set up the learning environment.
 
-#  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
+# Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
 ## Run the learning environment locally
 **Before getting started, make sure you have installed:**
@@ -172,7 +172,7 @@ sdk.start();
 
 `instrumentation.js` performs four main tasks:
 
-1. Import the OpenTelmetry packages required for tracing.
+1. Import the OpenTelemetry packages required for tracing.
 ```
 const opentelemetry = require('@opentelemetry/sdk-node');
 const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
@@ -212,8 +212,6 @@ sdk.start();
 <img width="2552" height="1369" alt="image" src="https://github.com/user-attachments/assets/c2d377c1-6b03-4b6c-9dc1-f9f419d77f95" />
 
 ## OpenTelemetry Collector Configuration
-
-*In this series, we’ll refer to the OpenTelemetry Collector simply as the Collector.*
 
 **otel/otel-collector-config.yaml**
 ```
@@ -286,7 +284,7 @@ service:
       exporters: [debug, otlp/jaeger]
 ```
 - Our configuration defines a pipeline for traces.
-- The traces sent from the app is received by the **`otlp` receiver**.
+- The traces sent from the app are received by the **`otlp` receiver**.
 - The **`debug` exporter** logs traces to the terminal where the Collector is running.
 - The **`otlp/jaeger` exporter** forwards traces to Jaeger. 
 
@@ -326,7 +324,6 @@ Like the Tags section, this section also includes sensitive or low-value host an
 While the values are blurred in the screenshots, the attribute types shown are included by default.
 
 These will be cleaned up in the next episode using processors:
-
   - host.arch
   - host.id
   - host.name
@@ -563,7 +560,7 @@ As a best practice, the `batch` processor should almost always be included in pr
 
 Adjust these parameters to fit your specific use case.
 
-**The service component was updated to tie the receivers, processors, and exporters together into a trace pipeline.**
+**The service component was updated to tie the receivers, processors, and exporters together into a traces pipeline.**
 
 ```
 service:
