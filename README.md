@@ -477,6 +477,11 @@ service:
       exporters: [debug, otlp/jaeger]
 ```
 **1. The `resource` processor modifies metadata about the service or host.**
+
+In this configuration, the resource processor inserts a new resource attribute called `deployment.environment.name` and sets its value to `local`.
+
+This makes it easier to identify where traces are coming from when working across multiple environments.
+
 ```
 processors:
   resource:
@@ -485,14 +490,11 @@ processors:
         value: local
         action: insert
 ```
-**In this configuration, the resource processor inserts a new resource attribute called `deployment.environment.name` and sets its value to `local`.**
 
-This makes it easier to identify where traces are coming from when working across multiple environments.
-
-**Newly processed trace**
+**After (processed telemetry)**
 <img width="2560" height="994" alt="image" src="https://github.com/user-attachments/assets/a057f3c0-8af6-4eb6-a435-c6f2c30290ca" />
 
-**In addition, the following resource attributes were deleted to remove low-value or sensitive host and process metadata.**  
+In addition, the following resource attributes were deleted to remove low-value or sensitive host and process metadata.
 
 ```
 processors:
@@ -561,7 +563,7 @@ As a best practice, the `batch` processor should almost always be included in pr
 
 Adjust these parameters to fit your specific use case.
 
-**The service component was updated to tie the receivers, processors, and exporters together into a traces pipeline.**
+**The service component was updated to tie the receivers, processors, and exporters together into a trace pipeline.**
 
 ```
 service:
