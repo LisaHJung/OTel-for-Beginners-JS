@@ -9,6 +9,17 @@ First, we’ll answer the question: What is OpenTelemetry?
 
 [![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)]([https://www.youtube.com/watch?v=fZRwVwCvLAg](https://youtu.be/iEEIabOha8U))
 
+## Series Resources
+- [OpenTelemetry documentation](https://opentelemetry.io/docs/)
+  - Ask AI (⌘+K shortcut)
+  - [Language APIs and SDKs](https://opentelemetry.io/docs/languages/)
+  - [Instrumentation](https://opentelemetry.io/docs/concepts/instrumentation/)
+  - [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)
+    - [List of OpenTelemetry Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) 
+- [OpenTelemetry YouTube channel](https://www.youtube.com/@otel-official)
+  - [OpenTelemetry for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
+- [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
+
 Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 to explore the architecture and objectives that will kickstart your trace pipeline.
 
 # Episode 2 - Overview: Kickstart Your Trace Pipeline with OpenTelemetry
@@ -21,43 +32,32 @@ Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 
 - Use the Jaeger UI to visualize and verify that the traces have been correctly processed.
 
 **Note:**
-- Docker runs the OTel Collector and Jaeger side by side with our app for easy setup and integration. 
+- Docker runs the OpenTelemetry Collector and Jaeger side by side with our app for easy setup and integration. 
 
 <img width="1918" alt="image" src="https://github.com/user-attachments/assets/a398be28-3bbc-4895-b343-8cbc09fac606" />
 
 **Before we dive into fancy processing, we need to know what our data actually looks like.**
 
-To get there, we’ll set up a baseline trace flow,  just the essentials.
+To get there, we’ll set up a baseline trace flow, just the essentials.
 
 <img width="2554" height="1435" alt="image" src="https://github.com/user-attachments/assets/f6713274-9dab-423d-91d9-fd7462eb60d4" />
 
 **Next, we’ll keep the same setup and introduce processors to modify trace data, then verify the results in the Jaeger UI.**
 <img width="2558" height="1436" alt="image" src="https://github.com/user-attachments/assets/ec01118b-e02e-49ef-80bb-913b0f66811a" />
 
-## Resources
-- [OpenTelemetry documentation](https://opentelemetry.io/docs/)
-  - Ask AI (⌘+K shortcut)
-  - [Language APIs and SDKs](https://opentelemetry.io/docs/languages/)
-  - [Instrumentation](https://opentelemetry.io/docs/concepts/instrumentation/)
-  - [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)
-    - [List of OpenTelemetry Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) 
-- [OpenTelemetry YouTube channel](https://www.youtube.com/@otel-official)
-  - [OpenTelemetry for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
-- [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
-
 Now that you’ve covered the pipeline architecture in Episode 2, let’s move on to Episode 3 to set up the learning environment.
 
 #  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
 ## Run the learning environment locally
-**Before getting started, make sure you have installed:
+**Before getting started, make sure you have installed:**
 - [Node.js](https://nodejs.org/en/download/) 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
   
 **Clone the project**
 ```
-# Choose a directory of your choice
+# Choose a directory
 git clone https://github.com/open-telemetry/opentelemetry-for-beginners.git
 ```
 **Start the server**
@@ -76,18 +76,21 @@ Refresh the page multiple times. This app will generate a random number from 1�
 
 ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
-**Using Docker, run the OpenTelemetry Collector and Jaeger**
+*In this series, we’ll refer to the OpenTelemetry Collector simply as the Collector.*
 
-In this series, we’ll refer to the OpenTelemetry Collector simply as the Collector.
 Before getting started, make sure Docker Desktop is open and running.
 
 <img width="2548" height="1440" alt="image" src="https://github.com/user-attachments/assets/34b5d38f-01b9-4294-a61e-33c6f40e3dda" />
+
+**Using Docker, run the Collector and Jaeger**
 
 ```
 # In a different terminal, within the project directory
 docker compose up --build 
 ```
 **Refresh the Roll the Dice app page multiple times to send traces to the Collector**
+
+![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
 Take a look at the terminal that is running Docker.
 
@@ -100,13 +103,13 @@ You will be able to see the logs of traces that are flowing through the Collecto
 
 2. Click on the "Service" section (orange box) to view all the services that are sending traces to Jaeger.
 
-<img width="2560" height="1296" alt="image" src="https://github.com/user-attachments/assets/2fb3c82f-d65b-4400-a8a9-2a71a51658b0" />
-
 In our setup, the service name was set to "OTel4Beginners". 
 
 Select the service "OTel4Beginners" then click on the "Find Traces" button (blue arrow).
 
 If you don't see the service name "OTel4Beginners", refresh the Roll the Dice app page a few times. Verify that the Collector is receiving telemetry by checking its logs (terminal running Docker), then refresh the Jaeger UI page again.
+
+<img width="2560" height="1296" alt="image" src="https://github.com/user-attachments/assets/2fb3c82f-d65b-4400-a8a9-2a71a51658b0" />
 
 You’ll now see traces generated by the application flowing through the Collector and into Jaeger.
 <img width="2544" height="1291" alt="image" src="https://github.com/user-attachments/assets/eeb78946-8d58-4b4f-a6b3-1061bd06b4a8" />
