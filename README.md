@@ -342,9 +342,9 @@ Now that traces are being generated and exported through the Collector, we can s
 
 ## Project branches 
 
-<img width="2559" height="1438" alt="image" src="https://github.com/user-attachments/assets/4951d1c6-534a-46b7-a917-e8beaa5fb8a1" />
+<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c4733cef-e3e5-44fa-9f8c-f8c1c20ef4d1" />
 
-1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup) (**Episode 4**)
+1. [`traces-bare-bones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup) (**Episode 4**)
 - Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
 - The Collector forwards traces to Jaeger for storage and visualization with no additional processing.
 
