@@ -340,26 +340,42 @@ Now that traces are being generated and exported through the Collector, we can s
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
+Objectives:
+- Add resource context (deployment.environment.name)
+- Remove noisy/sensitive resource + span attributes
+- Batch spans for efficient export
+
 ## Project branches 
 
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c4733cef-e3e5-44fa-9f8c-f8c1c20ef4d1" />
 
-1. [`traces-bare-bones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup) (**Episode 4**)
+1. [`traces-bare-bones-setup`](https://github.com/LisaHJung/OTel-for-Beginners-JS/tree/traces-bare-bones-setup) (**Episode 4**)
 - Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
 - The Collector forwards traces to Jaeger for storage and visualization with no additional processing.
 
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/a617811d-5a3c-4430-bf11-c7da506f39d2" />
 
-2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) (**Current episode**)
-- Uses the same setup as `traces-barebones-setup`, but applies processors to incoming traces.
+2. [`traces-add-processors`](https://github.com/LisaHJung/OTel-for-Beginners-JS/tree/traces-add-processors) (**Current episode**)
+- Uses the same setup as `traces-bare-bones-setup`, but applies processors to incoming traces.
 - These processors enrich resource metadata, remove low-value or sensitive attributes, and batch traces for more efficient exporting.
-  
-**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch to apply the processor configuration:**
+
+*At this point, you should still have two terminals open: one for the Roll the Dice app, and one for Docker.*
+
+### Step 1: Switch branch + restart app (Terminal 1)
+In the terminal running the Roll the Dice App, stop the app, switch to the [`traces-add-processors`](https://github.com/LisaHJung/OTel-for-Beginners-JS/tree/traces-add-processors) branch, and restart the app.
+
 ```
-# in one terminal, from the project directory
+# stop the app
+CTRL + C
+
+# switch to the traces-add-processors branch
 git checkout traces-add-processors
+
+# restart the app 
+npm start
 ``` 
-**In the terminal running Docker, stop and restart the OpenTelemetry Collector and Jaeger.**
+### Step 2: Restart Collector + Jaeger (Terminal 2)
+In the terminal running Docker, stop and restart the OpenTelemetry Collector and Jaeger.
 ```
 # stop the running containers
 CTRL + C
@@ -369,13 +385,16 @@ docker compose up --build
 ```
 This reloads the Collector with the updated processor configuration. 
 
-**Refresh the Roll the Dice app page multiple times to send traces to the newly configured OpenTelemetry Collector.**
+### Step 3: Generate traces
+Refresh the Roll the Dice app page multiple times at `http://localhost:8080/rolldice` to send traces to the newly configured OpenTelemetry Collector.
 ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
-**Check the Collector logs to verify that traces are flowing through the Collector.**
+### Step 4: Verify traces (Collector logs and Jaeger UI) 
+
+Check the Collector logs to verify that traces are flowing through the Collector.
 <img width="890" height="997" alt="image" src="https://github.com/user-attachments/assets/a8c0a4d1-9244-40da-8b8c-1f508547e9cb" />
 
-**Open the Jaeger UI and take a look at the new traces coming in.**
+Open the Jaeger UI at `http://localhost:16686` and take a look at the new traces coming in.
 <img width="2542" height="1267" alt="image" src="https://github.com/user-attachments/assets/7f4a5cb5-f59f-4d77-b640-7cf0a8e7eb1a" />
 
 Now that we’ve confirmed the newly transformed traces are flowing through the Collector, let’s examine the updated configuration to understand how trace data is processed before export.
@@ -384,7 +403,9 @@ After that, we’ll look at the new traces in more detail to see how the process
 
 ## New OpenTelemetry Collector Configuration
 
-### Three processors have been added to the existing Collector configuration to modify trace data before export:
+### Processors modify, filter, or enrich telemetry data within the Collector before it is exported.
+
+Three processors have been added to the Collector configuration to modify trace data before export:
 1. `resource` 
 2. `attributes` 
 3. `batch` 
@@ -455,8 +476,6 @@ service:
       processors: [resource, attributes, batch]
       exporters: [debug, otlp/jaeger]
 ```
-### Processors modify, filter, or enrich telemetry data within the Collector before it is exported.
-
 **1. The `resource` processor modifies metadata about the service or host.**
 ```
 processors:
@@ -465,22 +484,6 @@ processors:
       - key: deployment.environment.name
         value: local
         action: insert
-      - key: host.arch
-        action: delete
-      - key: host.id
-        action: delete
-      - key: host.name
-        action: delete  
-      - key: process.command
-        action: delete
-      - key: process.command_args
-        action: delete
-      - key: process.executable.path
-        action: delete
-      - key: process.owner
-        action: delete
-      - key: process.pid
-        action: delete
 ```
 **In this configuration, the resource processor inserts a new resource attribute called `deployment.environment.name` and sets its value to `local`.**
 
@@ -495,9 +498,6 @@ This makes it easier to identify where traces are coming from when working acros
 processors:
   resource:
     attributes:
-      - key: deployment.environment.name
-        value: local
-        action: insert
       - key: host.arch
         action: delete
       - key: host.id
@@ -518,10 +518,10 @@ processors:
 
 This helps reduce noise, improve privacy, and keep trace data focused.
 
-**Old traces from the original Collector configuration:**
+**Before (raw telemetry)**
 <img width="2558" height="1289" alt="image" src="https://github.com/user-attachments/assets/a177df0b-4183-4f02-8ffa-1aad6f8684b5" />
 
-**New traces from the new Collector configuration:**
+**After (processed telemetry)**
 <img width="2560" height="984" alt="image" src="https://github.com/user-attachments/assets/1c710cf6-b81f-4aa7-849d-d721e8ce2f55" />
 
 **2. The `attributes` processor modifies, adds, or removes span attributes.**
@@ -529,24 +529,25 @@ This helps reduce noise, improve privacy, and keep trace data focused.
 The following span attributes were deleted to keep span data focused on application behavior rather than client or network details.
 
 ```
-attributes:
+processors:
+  attributes:
     actions:
       - key: http.user_agent
         action: delete
       - key: net.host.ip
         action: delete
-      - key: net.host.port
-        action: delete
       - key: net.peer.ip
+        action: delete
+      - key: net.host.port
         action: delete
       - key: net.peer.port
         action: delete
 ```
 
-**Old traces from the original Collector configuration:**
+**Before (raw telemetry)**
 <img width="2549" height="1247" alt="image" src="https://github.com/user-attachments/assets/f0aee2dc-c218-4966-b867-eb4161523ad0" />
 
-**New traces from the new Collector configuration:**
+**After (processed telemetry)**
 <img width="2560" height="1190" alt="image" src="https://github.com/user-attachments/assets/7980e73b-af1f-4336-aedb-49e1eb1257c9" />
 
 **3. The `batch` processor groups telemetry data into batches before exporting.**
