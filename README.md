@@ -324,14 +324,14 @@ Like the Tags section, this section also includes sensitive or low-value host an
 While the values are blurred in the screenshots, the attribute types shown are included by default.
 
 These will be cleaned up in the next episode using processors:
-  - host.arch
-  - host.id
-  - host.name
-  - process.command
-  - process.command_args
-  - process.executable.path
-  - process.owner
-  - process.pid
+- host.arch
+- host.id
+- host.name
+- process.command
+- process.command_args
+- process.executable.path
+- process.owner
+- process.pid
 
 Now that traces are being generated and exported through the Collector, we can start processing that data before it is sent to the backend.
 
