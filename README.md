@@ -50,7 +50,7 @@ Now that you’ve covered the pipeline architecture in Episode 2, let’s move o
 #  Episode 3 - Set Up Your Learning Environment: Ready, Steady, Trace!
 
 ## Run the learning environment locally
-**Before getting started, make sure you have installed:
+**Before getting started, make sure you have installed:**
 - [Node.js](https://nodejs.org/en/download/) 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
@@ -59,12 +59,12 @@ Now that you’ve covered the pipeline architecture in Episode 2, let’s move o
 ```
 # Choose a directory of your choice
 git clone https://github.com/open-telemetry/opentelemetry-for-beginners.git
+cd opentelemetry-for-beginners/javascript/traces/bare-bones-setup
 ```
 **Start the server**
 
 Execute the following commands:
 ```
-# In the project directory
 npm install
 npm start
 ```
@@ -330,24 +330,24 @@ Now that traces are being generated and exported through the Collector, we can s
 
 # Episode 5 - Processing Traces: OpenTelemetry Collector in Action
 
-## Project branches 
+## Project folders 
 
-<img width="2559" height="1438" alt="image" src="https://github.com/user-attachments/assets/4951d1c6-534a-46b7-a917-e8beaa5fb8a1" />
+<img width="2560" height="1439" alt="Image" src="https://github.com/user-attachments/assets/c7333330-f10e-4535-9251-c4f2fc7f82d4" />
 
-1. [`traces-barebones-setup`](https://github.com/LisaHJung/O4B/tree/original-setup) (**Episode 4**)
+1. `bare-bones-setup/` (**Episode 4**)
 - Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
 - The Collector forwards traces to Jaeger for storage and visualization with no additional processing.
 
-<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/a617811d-5a3c-4430-bf11-c7da506f39d2" />
+<img width="2558" height="1440" alt="Image" src="https://github.com/user-attachments/assets/26f24e22-e97c-4b67-85c4-c8145f541472" />
 
-2. [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) (**Current episode**)
-- Uses the same setup as `traces-barebones-setup`, but applies processors to incoming traces.
+2. `add-processors/` (**Current episode**)
+- Uses the same setup as `bare-bones-setup`, but applies processors to incoming traces.
 - These processors enrich resource metadata, remove low-value or sensitive attributes, and batch traces for more efficient exporting.
   
-**Switch to the [`traces-add-processors`](https://github.com/LisaHJung/O4B/tree/post-processing) branch to apply the processor configuration:**
+**Navigate to the `add-processors` folder to apply the processor configuration:**
 ```
-# in one terminal, from the project directory
-git checkout traces-add-processors
+# from the javascript/traces directory
+cd ../add-processors
 ``` 
 **In the terminal running Docker, stop and restart the OpenTelemetry Collector and Jaeger.**
 ```
