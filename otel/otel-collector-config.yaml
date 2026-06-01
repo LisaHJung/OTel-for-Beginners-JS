@@ -47,10 +47,6 @@ processors:
   # Modify metric datapoint attributes (for metrics)
   attributes/metrics:
     actions:
-      - key: net.host.ip
-        action: delete
-      - key: net.peer.ip
-        action: delete
       - key: net.host.port
         action: delete
 
@@ -59,21 +55,19 @@ processors:
     error_mode: ignore
     metrics:
       metric:
-        # Exclude internal runtime metrics that may be too verbose
-        - 'name == "process.runtime.nodejs.event_loop.utilization"'
+        # Drop a low-level V8 internal metric most apps don't need.
+        # The per-heap-space physical size is deep engine detail; the
+        # useful memory signals (v8js.memory.heap.used / heap.limit) stay.
+        - 'name == "v8js.memory.heap.space.physical_size"'
 
   # Rename and transform metrics
   metricstransform:
     transforms:
-      # Rename http duration metric to be more descriptive
+      # Rename the HTTP duration metric to match the current OTel
+      # semantic conventions (http.server.duration -> http.server.request.duration)
       - include: http.server.duration
         action: update
-        new_name: http_server_request_duration_ms
-      # Add a prefix to all metrics from this service
-      - include: ^(.*)$$
-        match_type: regexp
-        action: update
-        new_name: app_$${1}
+        new_name: http.server.request.duration
 
   # Batch for efficient export
   batch:
