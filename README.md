@@ -7,7 +7,7 @@ First, we’ll answer the question: What is OpenTelemetry?
 # Episode 1 - What is OpenTelemetry?
 🎬 Watch this video to learn what OpenTelemetry is and why it matters.
 
-[![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)]([https://www.youtube.com/watch?v=fZRwVwCvLAg](https://youtu.be/iEEIabOha8U))
+[![Watch the video](https://img.youtube.com/vi/iEEIabOha8U/0.jpg)](https://youtu.be/iEEIabOha8U)
 
 Now that you’ve covered the basics in Episode 1, let’s move on to Episode 2 to explore the architecture and objectives that will kickstart your trace pipeline.
 
