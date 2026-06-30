@@ -16,6 +16,14 @@ const {
   PeriodicExportingMetricReader,
 } = require('@opentelemetry/sdk-metrics');
 
+const {
+  OTLPLogExporter,
+} = require('@opentelemetry/exporter-logs-otlp-grpc');
+
+const {
+  BatchLogRecordProcessor,
+} = require('@opentelemetry/sdk-logs');
+
 const sdk = new opentelemetry.NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: 'http://localhost:4317',
@@ -26,6 +34,13 @@ const sdk = new opentelemetry.NodeSDK({
     }),
     exportIntervalMillis: 10000,
   }),
+  logRecordProcessors: [
+    new BatchLogRecordProcessor(
+      new OTLPLogExporter({
+        url: 'http://localhost:4317',
+      }),
+    ),
+  ],
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

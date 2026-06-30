@@ -18,6 +18,11 @@ exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
 
+  opensearch:
+    http:
+      endpoint: http://opensearch:9200
+    logs_index: otel-logs
+
 service:
   pipelines:
     traces:
@@ -26,3 +31,6 @@ service:
     metrics:
       receivers: [otlp]
       exporters: [debug, prometheus]
+    logs:
+      receivers: [otlp]
+      exporters: [debug, opensearch]

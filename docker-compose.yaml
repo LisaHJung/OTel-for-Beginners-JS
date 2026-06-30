@@ -17,6 +17,27 @@ services:
     depends_on:
       - otel-collector
 
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true        # no TLS/auth for local learning
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"     # OpenSearch REST API
+      - "9600:9600"     # Performance Analyzer
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+    ports:
+      - "5601:5601"     # OpenSearch Dashboards UI
+    depends_on:
+      - opensearch
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     volumes:
@@ -28,3 +49,4 @@ services:
       - "8889:8889"     # Prometheus metrics endpoint
     depends_on:
       - jaeger
+      - opensearch

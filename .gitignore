@@ -1,0 +1,6 @@
+# Local episode notes / scripts (not part of the project)
+EP_Metrics_*.md
+*.pptx
+
+# macOS
+.DS_Store
