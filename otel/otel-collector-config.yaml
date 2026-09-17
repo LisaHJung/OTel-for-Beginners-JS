@@ -94,5 +94,5 @@ service:
       exporters: [debug, otlp/jaeger]
     metrics:
       receivers: [otlp]
-      processors: [resource, attributes/metrics, filter/exclude_metrics, metricstransform, batch]
+      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform, batch]
       exporters: [debug, prometheus]

@@ -113,7 +113,7 @@ Most of what's listed here should ring a bell from the trace episodes. Two entri
 
 The Metrics SDK gathers and ships our measurements on a schedule, and the exporter hands them off to the Collector. Between them, metrics are produced automatically and delivered to the Collector without us having to write any of that code ourselves.
 
-Let’s see how we use those packages to generate metrics. Switch to the instrumentation.js file. 
+Let's see how we use those packages to generate metrics. Switch to the instrumentation.js file. 
 
 ## instrumentation.js
 
@@ -161,7 +161,7 @@ Boiled down, this file walks through four steps:
 3. Configure automatic instrumentation and export our metrics to the local Collector. We do this with a `PeriodicExportingMetricReader`, which gathers our metrics and sends them on a fixed interval (in our setup, every ten seconds) to the Collector listening on port `4317`, the standard OTLP endpoint.
 4. Start the SDK. From this point on, the app can generate and send metrics.
 
-Now that our app is set up to generate metrics, let’s look at the Collector configuration that receives and exports them. You can find it by navigating to the otel directory and opening the otel-collector-config.yaml file.
+Now that our app is set up to generate metrics, let's look at the Collector configuration that receives and exports them. You can find it by navigating to the otel directory and opening the otel-collector-config.yaml file.
 
 ## OpenTelemetry Collector Configuration
 
@@ -282,11 +282,11 @@ The **Graph** view plots it over time so we can watch the count climb with each 
 
 This is one of the key strengths of metrics. They let us observe how our app behaves over time using numeric measurements.
 
-But the metric value is only part of the story. Let’s take a look at the labels that come with it.
+But the metric value is only part of the story. Let's take a look at the labels that come with it.
 
 ### Metric labels
 
-That single number, though, is only half the picture. In the same way trace spans came with attributes, each metric arrives with **labels** attached. 
+In the same way trace spans came with attributes, each metric arrives with **labels** attached. 
 
 They add extra context onto every measurement, such as the HTTP route, the request method, the status code.  
 
@@ -298,7 +298,7 @@ That said, not every label pulls its weight. Some are added automatically, `net_
 
 They can be useful, but they also feed into cardinality, and cardinality has a cost. Every distinct combination of labels spins up its own time series, which quietly drives up storage and spend. 
 
-We'll tackle how to trim this back in the next section.
+We'll tackle how to trim this back in the next episode.
 
 ### Resource attributes (where the metric came from)
 
@@ -333,7 +333,7 @@ To recap, we used auto-instrumentation to produce metrics, then configured a bar
 
 Along the way we got familiar with the labels and resource attributes attached to our telemetry. The pipeline is up and running, which means we're ready for the more interesting part, actually reshaping the data. 
 
-In the next section, processors take center stage, and we'll use them to tidy up, enrich, and transform our metrics before they leave the Collector.
+In the next episode, processors take center stage, and we'll use them to tidy up, enrich, and transform our metrics before they leave the Collector.
 
 # Episode 7 - Processing Metrics: OpenTelemetry Collector in Action
 
@@ -341,7 +341,7 @@ In the last episode, we instrumented our app and set up a bare-bones OpenTelemet
 
 <img width="2504" height="1405" alt="image" src="https://github.com/user-attachments/assets/bab79b62-026d-433f-ac62-79f58ccefb08" />
 
- In this episode, we'll fix that using **processors**, which run inside the Collector and let us modify, enrich, or filter telemetry before it's exported.
+In this episode, we'll fix that using **processors**, which run inside the Collector and let us modify, enrich, or filter telemetry before it's exported.
 
 <img width="2505" height="1409" alt="image" src="https://github.com/user-attachments/assets/ce0dd8eb-1259-4d73-84cc-3be29412adc5" />
 
@@ -393,7 +393,7 @@ Then switch over to the terminal running Docker, where you'll see those metrics 
 
 With data flowing again, let's open up the configuration that's now processing it.
 
-Switch back to the code editor. Make sure you have the metrics/add-processors folder open.  Then navigate to the otel directory and open the otel-collector-config.yaml file.
+Switch back to the code editor. Make sure you have the metrics/add-processors folder open. Then navigate to the otel directory and open the otel-collector-config.yaml file.
 
 ## New OpenTelemetry Collector Configuration
 
@@ -553,7 +553,11 @@ Because metric labels show up as Prometheus labels, this is easy to verify there
 
 <img width="2511" height="732" alt="image" src="https://github.com/user-attachments/assets/ee907835-df72-4879-b754-6f04c639ce76" />
 
-Run the same query against the live setup now and the metric comes back without it.
+Now switch back to the live Prometheus UI and run the HTTP request duration query again:
+```
+http_server_request_duration_milliseconds_count
+```
+This time the metric comes back without the `net_host_port` label. That's the effect of the attributes processor.
 
 <img width="2505" height="591" alt="image" src="https://github.com/user-attachments/assets/9794bd70-9a05-4107-b7b5-0aa52e14c5da" />
 
@@ -601,7 +605,7 @@ Query the new name instead and the data reappears.
 
 <img width="2499" height="1191" alt="image" src="https://github.com/user-attachments/assets/c0c67874-8db2-4b4b-a727-804dba827a34" />
 
-One detail worth calling out is that the name in Prometheus doesn't match the one in our config. In the Collector configuration it's `http.server.request.duration`, but in Prometheus it shows up as `http_server_request_duration_milliseconds_count`(highlighted in orange). 
+One detail worth calling out is that the name in Prometheus doesn't match the one in our config. In the Collector configuration it's `http.server.request.duration`, but in Prometheus it shows up as `http_server_request_duration_milliseconds_count` (highlighted in orange). 
 
 <img width="2502" height="1124" alt="image" src="https://github.com/user-attachments/assets/f952efc3-31d7-41b8-a976-6a52f37e7b5e" />
 
