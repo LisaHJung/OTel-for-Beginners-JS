@@ -546,7 +546,7 @@ batch:
     send_batch_size: 512
 
 ```
-As a best practice, the `batch` processor should almost always be included in production-ready Collector configurations.
+_Note: the OpenTelemetry Collector is migrating batching into the exporter's sending queue, and the standalone batch processor is slated for deprecation. For now it remains a common, widely used choice._
 
 Adjust these parameters to fit your specific use case.
 
