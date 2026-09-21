@@ -56,7 +56,7 @@ processors:
     metrics:
       metric:
         # Drop a low-level V8 internal metric most apps don't need.
-        # The per-heap-space physical size is deep engine detail; the
+        # The per-heap-space physical size is deep engine detail. The
         # useful memory signals (v8js.memory.heap.used / heap.limit) stay.
         - 'name == "v8js.memory.heap.space.physical_size"'
 
