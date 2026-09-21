@@ -1,3 +1,9 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
 # Local episode notes / scripts (not part of the project)
 EP_Metrics_*.md
 *.pptx
