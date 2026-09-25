@@ -73,21 +73,16 @@ processors:
   # Rolling a 1 is our "losing" roll, so we raise it from INFO to WARN.
   # This makes the noteworthy events stand out and sets up the filter below.
   transform/logs:
-    error_mode: ignore
     log_statements:
-      - context: log
-        statements:
-          - set(log.severity_number, SEVERITY_NUMBER_WARN) where log.attributes["dice.value"] == 1
-          - set(log.severity_text, "WARN") where log.attributes["dice.value"] == 1
+      - set(log.severity_number, SEVERITY_NUMBER_WARN) where log.attributes["dice.value"] == 1
+      - set(log.severity_text, "WARN") where log.attributes["dice.value"] == 1
 
   # Drop low-severity log noise (for logs).
   # Keep only WARN and above so routine INFO rolls don't fill up storage.
   # The filter processor drops any record that matches the condition.
   filter/logs:
-    error_mode: ignore
-    logs:
-      log_record:
-        - 'log.severity_number < SEVERITY_NUMBER_WARN'
+    log_conditions:
+      - 'log.severity_number < SEVERITY_NUMBER_WARN'
 
   # Batch for efficient export (traces + metrics)
   batch:
