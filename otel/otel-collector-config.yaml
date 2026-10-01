@@ -55,16 +55,11 @@ processors:
     error_mode: ignore
     metrics:
       metric:
-        # Drop a low-level V8 internal metric most apps don't need.
-        # The per-heap-space physical size is deep engine detail. The
-        # useful memory signals (v8js.memory.heap.used / heap.limit) stay.
         - 'name == "v8js.memory.heap.space.physical_size"'
 
   # Rename and transform metrics
   metricstransform:
     transforms:
-      # Rename the HTTP duration metric to match the current OTel
-      # semantic conventions (http.server.duration -> http.server.request.duration)
       - include: http.server.duration
         action: update
         new_name: http.server.request.duration
@@ -93,10 +88,18 @@ exporters:
   debug:
     verbosity: detailed
 
+  # Jaeger receives our traces. Like the OpenSearch logs exporter, batching is
+  # handled here at the exporter level (sending_queue.batch) instead of a
+  # standalone batch processor.
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
+    sending_queue:
+      sizer: items
+      batch:
+        flush_timeout: 5s
+        min_size: 512
 
   prometheus:
     endpoint: 0.0.0.0:8889
@@ -118,7 +121,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resource, attributes/traces, batch]
+      processors: [resource, attributes/traces]
       exporters: [debug, otlp/jaeger]
     metrics:
       receivers: [otlp]
