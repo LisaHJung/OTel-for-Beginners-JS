@@ -5,7 +5,7 @@ node_modules/
 *.log
 
 # Local episode notes / scripts (not part of the project)
-EP_Metrics_*.md
+EP_*.md
 *.pptx
 
 # macOS
