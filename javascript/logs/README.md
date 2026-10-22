@@ -581,13 +581,13 @@ For each processor, we'll compare our logs from the bare-bones setup (**before**
 
 Remember all those `resource.host` and `resource.process` attributes we saw when we expanded a log in the last episode?
 
-<!-- TODO screenshot of an expanded bare-bones log record highlighting the resource.host and resource.process attributes -->
+<img width="2506" height="1275" alt="image" src="https://github.com/user-attachments/assets/7adb46af-71bb-4d01-be60-49ab1e8c2849" />
 
 **After: logs from the new Collector configuration**
 
 Now let's compare that with our processed logs. Here, the before and after views are side by side so it's easy to see what changed.
 
-<!-- TODO side-by-side screenshot: bare-bones log record (left) and processed log record with deployment.environment.name = local (right) -->
+<img width="1309" height="507" alt="image" src="https://github.com/user-attachments/assets/48a2617a-f4f5-4c8b-a541-9dab0a811f33" />
 
 On the left are our original logs, with all those host and process details.
 
@@ -629,7 +629,7 @@ Now let's see what this looks like in Discover.
 
 Here, the dice value and severity are shown side by side. Notice that every roll, from one through six, came through with the same `INFO` severity.
 
-<!-- TODO screenshot of bare-bones Discover with attributes.dice.value and severity.text columns, all INFO -->
+<img width="2501" height="1282" alt="image" src="https://github.com/user-attachments/assets/6867f999-95f6-4eeb-a0a6-d5cb14870ccd" />
 
 **After: logs from the new Collector configuration**
 
@@ -637,17 +637,19 @@ To compare, let's set up the same view on our live dashboard that we used in the
 
 Under **Available fields** on the left, find `attributes.dice.value` and `severity.text` and click **Add** for each. Now every row shows the roll next to its severity.
 
-<!-- TODO screenshot of processed Discover with attributes.dice.value and severity.text columns -->
+<img width="2420" height="1050" alt="image" src="https://github.com/user-attachments/assets/b937e349-33e7-47db-8c2d-cb825745974d" />
 
 Let's expand one of the records and scroll down to `attributes.dice.value`.
 
-<!-- TODO screenshot of an expanded processed log record with dice.value = 1 and severity.text = WARN -->
+<img width="1497" height="1122" alt="image" src="https://github.com/user-attachments/assets/72824e95-13c8-4734-80fd-e3834b7b2108" />
 
 Remember, in our bare-bones setup, every roll came through as `INFO`, including the ones.
 
 Now, the dice value is `1` and the severity is `WARN`. That's our `transform` processor at work, changing the severity exactly as we configured it.
 
 Now let's close this record and take a look at the rest of our logs.
+
+<img width="2420" height="1047" alt="image" src="https://github.com/user-attachments/assets/97187fb8-050f-4057-be9b-7293cde90696" />
 
 Here's where things get interesting. Every log record we're seeing has a dice value of one.
 
@@ -676,7 +678,7 @@ Let's see the difference in OpenSearch.
 
 Every roll made it to OpenSearch, from one through six. At the top, we can also see the total number of log records.
 
-<!-- TODO screenshot of bare-bones Discover showing dice values 1-6 and the total hit count -->
+<img width="2500" height="1277" alt="image" src="https://github.com/user-attachments/assets/65704ba7-099c-478b-9e43-05f444473d22" />
 
 **After: logs from the new Collector configuration**
 
@@ -684,7 +686,7 @@ Take a look at the results count. We have far fewer records than before.
 
 And notice what's left. Every dice value is `1`, and every severity is `WARN`.
 
-<!-- TODO screenshot of processed Discover showing only dice.value = 1 / WARN and the lower hit count -->
+<img width="2284" height="993" alt="image" src="https://github.com/user-attachments/assets/f9d8db1f-1cd2-4326-ad8d-843d30cee35b" />
 
 By combining the `transform` and `filter` processors, we can flag the events we care about and filter out the rest before they're stored.
 
@@ -768,17 +770,17 @@ service:
 
 **IMPORTANT**
 
-Processors run in the order they're listed: first `resource`, then `transform`, and finally `filter`.
+Processors run in the order they're liste. First `resource`, then `transform`, and finally `filter`.
 
 That order is intentional. The `transform` processor changes our rolls of one to `WARN`, and then the `filter` processor drops anything below `WARN`.
-
 If we switched that order, every one of those rolls would still be `INFO` when it reached the filter, so they'd all be dropped.
 
 And with that, we've taken our logs pipeline one step further by processing our logs before they're stored.
 
 # What We Built and Where to Go Next
 
-And that's a wrap on the OpenTelemetry for Beginners JavaScript Journey!
+That's a wrap on the OpenTelemetry for Beginners JavaScript Journey!
+<img width="1280" height="719" alt="Pipelines for all three signals: traces, metrics, and logs" src="images/all-three-signals.gif" />
 
 We started by exploring what OpenTelemetry is. Then, one signal at a time, we built pipelines for traces, metrics, and logs.
 
