@@ -79,11 +79,6 @@ processors:
     log_conditions:
       - 'log.severity_number < SEVERITY_NUMBER_WARN'
 
-  # Batch for efficient export (traces + metrics)
-  batch:
-    timeout: 5s
-    send_batch_size: 512
-
 exporters:
   debug:
     verbosity: detailed
@@ -101,6 +96,8 @@ exporters:
         flush_timeout: 5s
         min_size: 512
 
+  # Prometheus scrapes the Collector (pull-based), so there's nothing to batch
+  # on the way out. No batch processor and no sending_queue on this exporter.
   prometheus:
     endpoint: 0.0.0.0:8889
 
@@ -125,7 +122,7 @@ service:
       exporters: [debug, otlp/jaeger]
     metrics:
       receivers: [otlp]
-      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform, batch]
+      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform]
       exporters: [debug, prometheus]
     logs:
       receivers: [otlp]
