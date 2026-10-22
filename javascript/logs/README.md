@@ -129,6 +129,7 @@ Now that we’ve covered the packages, let’s see how we use them in our app.
 
 This file prepares our app to generate logs and send them to the local Collector. It should look familiar from the traces and metrics setup, with the logs pieces added:
 
+**instrumentation.js**
 ```
 const opentelemetry = require('@opentelemetry/sdk-node');
 
@@ -174,6 +175,7 @@ Logs are the exception. Because our app has no logging library for OpenTelemetry
 
 This is **manual instrumentation**:
 
+**app.js**
 ```
 const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
 
@@ -253,6 +255,8 @@ Our receiver hasn't changed, so let's start with the exporter, then we'll take a
 **Exporters define where the Collector sends telemetry.** 
 
 For logs, we use two:
+
+**otel/otel-collector-config.yaml**
 ```
 exporters:
   debug:
@@ -271,6 +275,8 @@ For traces we exported to Jaeger, and for metrics to Prometheus.
 This time we send our logs to **OpenSearch**, our backend for storing and searching logs. It writes them to an index called `otel-logs`. We'll explain what an index is shortly.
 
 **The `service` component defines how data moves through the Collector.**
+
+**otel/otel-collector-config.yaml**
 ```
 service:
   pipelines:
@@ -298,6 +304,7 @@ Before we can see them, there’s one thing we need to set up.
 
 Back in the Collector config, the `opensearch` exporter sets `logs_index` to `otel-logs`.
 
+**otel/otel-collector-config.yaml**
 ```yaml
 exporters:
   opensearch:
@@ -536,6 +543,7 @@ Our logs pipeline uses three processors: `resource`, `transform`, and `filter`. 
 
 We've already used this one in our traces and metrics episodes.
 
+**otel/otel-collector-config.yaml**
 ```yaml
 processors:
   resource:
@@ -605,6 +613,7 @@ It uses the **OpenTelemetry Transformation Language**, or **OTTL**, to describe 
 
 We won't dive into OTTL itself in this series, but we'll see an example of what it can do. If you'd like to learn more, check out the [Transform processor (OTTL)](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor) link in the [Resources](#resources) section.
 
+**otel/otel-collector-config.yaml**
 ```yaml
 processors:
   transform/logs:
@@ -661,6 +670,7 @@ It's pretty unlikely that we rolled a one every single time. So what happened to
 
 Not every log needs to be stored. As the amount of log data grows, keeping only what we need can save storage and make our logging setup more cost-efficient.
 
+**otel/otel-collector-config.yaml**
 ```yaml
 processors:
   filter/logs:
@@ -706,6 +716,7 @@ Remember `instrumentation.js`? Our app uses a `BatchLogRecordProcessor` to group
 
 That batching happens at the app level, before our logs ever reach the Collector.
 
+**instrumentation.js**
 ```js
 logRecordProcessors: [
   new BatchLogRecordProcessor(
@@ -726,6 +737,7 @@ Logs and traces work a little differently. Our OpenSearch and Jaeger exporters *
 
 Let's take a look at our OpenSearch exporter.
 
+**otel/otel-collector-config.yaml**
 ```yaml
 exporters:
   opensearch:
@@ -756,6 +768,7 @@ These values aren't one-size-fits-all, so feel free to adjust them based on your
 
 As we learned earlier, this is where we connect our receivers, processors, and exporters to build our pipeline.
 
+**otel/otel-collector-config.yaml**
 ```yaml
 service:
   pipelines:
