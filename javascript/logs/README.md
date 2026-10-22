@@ -28,7 +28,7 @@ Same as the earlier guides. Before getting started, make sure you have installed
 
 In the trace and metric episodes, we instrumented our app, sent telemetry through the OpenTelemetry Collector, and visualized it in a backend.
 
-<img width="1280" height="719" alt="Traces and metrics pipeline we've built so far" src="images/traces-and-metrics.gif" />
+<img width="1280" height="716" alt="Traces and metrics pipeline we've built so far" src="images/traces-and-metrics.gif" />
 
 Those two signals, traces and metrics, are only part of the picture. The third is **logs**.
 
@@ -42,7 +42,7 @@ Just like we did with traces and metrics, we're going to start simple.
 
 We'll configure a bare-bones OTel Collector to receive logs and export them to OpenSearch. We'll use this setup to explore our logs as they are, before we start processing them. 
 
-<img width="1280" height="719" alt="Bare-bones logs pipeline to OpenSearch" src="images/logs-pipeline.gif" />
+<img width="1280" height="716" alt="Bare-bones logs pipeline to OpenSearch" src="images/logs-pipeline.gif" />
 
 Then, in the next episode, we'll add processors and see how we can transform our logs before they're exported. Let's get everything set up.
 
@@ -394,7 +394,7 @@ Now that logs are being generated and exported through the Collector, we can sta
 
 In the last episode, we got our bare-bones logs pipeline up and running. Our app generated logs, the Collector exported them to OpenSearch, and we explored them in OpenSearch Dashboards.
 
-<img width="1280" height="719" alt="Bare-bones logs pipeline to OpenSearch" src="images/logs-pipeline.gif" />
+<img width="1280" height="716" alt="Bare-bones logs pipeline to OpenSearch" src="images/logs-pipeline.gif" />
 
 As we looked through those logs, a few things stood out that we could improve.
 
@@ -406,7 +406,7 @@ That's where **processors** come in.
 
 If you followed along with the traces and metrics episodes, processors should look familiar. They run inside the OTel Collector and let us modify, enrich, and filter our telemetry before it's exported. This time, we'll put them to work on our logs.
 
-<img width="1280" height="719" alt="Logs pipeline with processors in the OTel Collector" src="images/processed-logs-pipeline.gif" />
+<img width="1280" height="716" alt="Logs pipeline with processors in the OTel Collector" src="images/processed-logs-pipeline.gif" />
 
 In this episode, we'll:
 1. **Clean up** the resource attributes we don't need.
@@ -781,6 +781,8 @@ And with that, we've taken our logs pipeline one step further by processing our 
 And that's a wrap on the OpenTelemetry for Beginners JavaScript Journey!
 
 We started by exploring what OpenTelemetry is. Then, one signal at a time, we built pipelines for traces, metrics, and logs.
+
+<img width="1280" height="716" alt="Pipelines for all three signals: traces, metrics, and logs" src="images/all-three-signals.gif" />
 
 We instrumented our app, configured the OTel Collector to receive, process, and export our telemetry, and explored our data in a different backend for each signal.
 
