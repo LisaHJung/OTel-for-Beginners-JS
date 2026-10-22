@@ -28,7 +28,7 @@ Same as the earlier guides. Before getting started, make sure you have installed
 
 In the trace and metric episodes, we instrumented our app, sent telemetry through the OpenTelemetry Collector, and visualized it in a backend.
 
-<!-- TODO screenshot -->
+<img width="2505" height="1406" alt="image" src="https://github.com/user-attachments/assets/e042c98a-f486-48ac-a395-107c08db2ffc" />
 
 Those two signals, traces and metrics, are only part of the picture. The third is **logs**.
 
@@ -42,7 +42,7 @@ Just like we did with traces and metrics, we're going to start simple.
 
 We'll configure a bare-bones OTel Collector to receive logs and export them to OpenSearch. We'll use this setup to explore our logs as they are, before we start processing them. 
 
-<!-- TODO screenshot -->
+<img width="2505" height="1407" alt="image" src="https://github.com/user-attachments/assets/c88f1684-b453-48b8-abd6-9da4f1954c89" />
 
 Then, in the next episode, we'll add processors and see how we can transform our logs before they're exported. Let's get everything set up.
 
@@ -85,21 +85,27 @@ In your browser, go to the following URL: http://localhost:8080/rolldice
 
 Refresh the page multiple times. This app will generate a random number from 1–6, just as if you were rolling a die. Every roll also emits a log record.
 
-<!-- TODO screenshot/gif of the Roll the Dice app in the browser -->
+![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
 
 **See the logs flow through the Collector**
 
 Take a look at the terminal that is running Docker. You'll see logs flowing through the Collector.
 
+<img width="1576" height="1123" alt="image" src="https://github.com/user-attachments/assets/be8f0e91-3bd7-4a8d-93c5-aa69a60db739" />
+
 One thing to keep in mind. Unlike traces, our logs are **batched** before they're sent, so they won't appear the instant you roll. Give it a few seconds, then look for them.
 
 Because each log is small compared to the metrics output, it's easy to scroll past. To make them easy to spot, you can run this command to filter the Collector's output down to just the log records.
 
+Our other two terminals are busy running the app and Docker, so open a third terminal and run the following command.
+
+**Terminal 3 - Filtered Collector output**
 ```
+# in a new terminal, within the logs/bare-bones-setup folder
 docker compose logs otel-collector -f | grep --line-buffered -A8 "LogRecord #"
 ```
 
-<!-- TODO screenshot of the Collector debug output showing a LogRecord flowing through -->
+<img width="1056" height="930" alt="image" src="https://github.com/user-attachments/assets/cd90da28-b87b-49e8-bcbc-80dfc3ef1cbc" />
 
 Since we know our app is generating logs and the Collector is receiving them, let's head into the code and see how those logs are being generated.
 
@@ -109,7 +115,7 @@ Since we know our app is generating logs and the Collector is receiving them, le
 
 For our logs example, we've added three OpenTelemetry packages on top of what the earlier episodes used:
 
-<!-- TODO screenshot of package.json highlighting the logs dependencies -->
+<img width="1606" height="1088" alt="image" src="https://github.com/user-attachments/assets/3f24a0aa-76d9-44fe-8fa2-2cf87fa4d30c" />
 
 - `@opentelemetry/api-logs` is the **Logs API**. It lets our app create log records in our code.
 - `@opentelemetry/sdk-logs` is the **Logs SDK**. It collects those records and prepares them for export.
@@ -164,7 +170,9 @@ At a high level, `instrumentation.js` does the same four things it did for metri
 
 Up to now, OpenTelemetry has auto-generated traces and metrics, without us changing a line of application code. That's **automatic instrumentation**. 
 
-Logs are the exception. Because our app has no logging library for OpenTelemetry to hook into automatically, we create the log record ourselves with the Logs API. This is **manual instrumentation**:
+Logs are the exception. Because our app has no logging library for OpenTelemetry to hook into automatically, we create the log record ourselves with the Logs API. 
+
+This is **manual instrumentation**:
 
 ```
 const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
@@ -280,7 +288,11 @@ Now that everything is configured, let’s see it in action.
 
 ## Exploring logs in OpenSearch Dashboards
 
-Open your browser and go to `http://localhost:5601` to reach OpenSearch Dashboards, where we'll explore our logs. Before any of them show up, there's one thing we need to set up.
+Open your browser and go to `http://localhost:5601` to reach OpenSearch Dashboards, where we'll explore our logs. 
+
+<img width="2039" height="968" alt="image" src="https://github.com/user-attachments/assets/c6e2790e-3e8a-4a11-bee1-2811daefa14e" />
+
+Before we can see them, there’s one thing we need to set up.
 
 **What's an index?**
 
@@ -304,12 +316,17 @@ Our data is already in OpenSearch, but Dashboards still needs to know which inde
 
 **Create the index pattern**
 1. From the OpenSearch Dashboards home page, click **Manage** in the top-right corner.
+   <img width="2037" height="971" alt="image" src="https://github.com/user-attachments/assets/0046add1-05b3-4954-a79c-4d5a334189ab" />
+
 2. In the menu on the left, select **Index patterns**, then click **Create index pattern**.
+   <img width="2315" height="681" alt="image" src="https://github.com/user-attachments/assets/06535b6d-ec20-429f-9825-a57e782a3f64" />
+   <img width="2103" height="905" alt="image" src="https://github.com/user-attachments/assets/1e1b35a1-d8c2-4378-8b31-00a0d49cd37d" />
+
 3. For the index pattern name, enter `otel-logs`. You'll see it match the `otel-logs` index below. Click **Next step**.
+   <img width="2070" height="1118" alt="image" src="https://github.com/user-attachments/assets/5c63ca5d-4578-4bbb-b6a8-59efb747724e" />
+
 4. Open the time field dropdown and select `@timestamp`, then click **Create index pattern**.
-
-<!-- TODO screenshot of the Create index pattern screen with otel-logs and @timestamp -->
-
+   <img width="1652" height="905" alt="image" src="https://github.com/user-attachments/assets/5a0c539d-c655-409b-9ad6-bfc78aeb4110" />
 > **A note on timestamps.** 
 
 Each log carries two. `@timestamp` is when the event happened in our app, and `observedTimestamp` is when the SDK collected it (a few seconds later, because of batching). 
@@ -318,25 +335,57 @@ We use `@timestamp` so our logs line up on the timeline by when we actually roll
 
 **View your logs**
 1. Open the menu in the top-left corner and select **Discover**.
+   <img width="1602" height="1111" alt="image" src="https://github.com/user-attachments/assets/0592f206-cb43-4ef5-8540-80c7e8a04e55" />
+
 2. Make sure `otel-logs` is selected in the dropdown near the top-left.
-3. Remember, our app only creates logs when we roll, so head back to the Roll the Dice app and roll a few times. Then return to **Discover**, set the time range (top-right) to **Last 15 minutes**, and click **Refresh**. 
+   <img width="1957" height="1121" alt="image" src="https://github.com/user-attachments/assets/a21b4227-e708-44b0-837e-0ae7d9cf3ffb" />
+
+3. Remember, our app only creates logs when we roll, so head back to the Roll the Dice app and roll a few times.
+   ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
+4. Then return to **Discover**, set the time range (top-right) to **Last 15 minutes**, and click **Refresh**.
+   <img width="1962" height="1119" alt="image" src="https://github.com/user-attachments/assets/97f92ce0-60e4-4f9e-99a1-91aceb7a7e53" />
 
 If you see "No results," give the batch a few seconds and check that your time range covers the last few minutes.
 
-<!-- TODO screenshot of Discover showing a list of otel-logs records -->
+Once your records appear, **expand one** by clicking the arrow at the start of its row and read through it top to bottom. 
+<img width="1960" height="1119" alt="image" src="https://github.com/user-attachments/assets/67b19343-88c9-4046-a584-cb840d48e44c" />
 
-Once your records appear, **expand one** by clicking the arrow at the start of its row and read through it top to bottom. This is where the body and `dice.value` attribute we added back in `app.js` finally show up, now that the log has made its way through the Collector and into OpenSearch.
+This is where the body and `dice.value` attribute we added back in `app.js` finally show up, now that the log has made its way through the Collector and into OpenSearch.
+<img width="2246" height="1123" alt="image" src="https://github.com/user-attachments/assets/74359a09-5ff4-4bee-a685-571e4e9a9964" />
 
-- **`body`** holds the message we wrote in our code, `Rolled a dice and got <value>`. It tells us what happened.
+- **`body`** holds the message we wrote in our code (app.js), `Rolled a dice and got <value>`. It tells us what happened.
 - **`attributes.dice.value`** (just above the body) pulls out a specific detail, the number we rolled.
-- The **`resource.*`** fields are **resource attributes**. Instead of describing the event, they tell us where the telemetry came from, our application, process, and host. Because they describe the source and not the event, they stay the same on every log, unlike `dice.value`, which changes with each roll. Just like we saw with traces and metrics, many were added automatically, and some are more than we need, like host identifiers, the process owner, and the command used to start our app. We'll clean these up in the next episode.
-- The **severity** fields tell us how important an event is. We set every roll to `INFO` because they're routine, so here we see a `severity.text` of `INFO` and a `severity.number` of `9`. That `9` has nothing to do with the number we rolled, in OpenTelemetry, `9` is the `INFO` level. In the next episode we'll give our rolls different severity levels and use them to filter our logs.
-- At the bottom is the **trace context**, a `traceId` and `spanId` we never added ourselves. OpenTelemetry attached them automatically because this log was created while a traced request was running. The `traceId` links this log to that request's trace, so we can jump straight from a log to the full request it belongs to.
 
-<!-- TODO screenshot of an expanded otel-logs record highlighting body, attributes.dice.value, resource.*, severity, and trace context -->
+<img width="1944" height="1115" alt="image" src="https://github.com/user-attachments/assets/35bdd5b0-c738-48f3-9513-8b0f55377e7f" />
 
-**Scan many logs at once.** Expanding one record is great for a single event, but to compare several at a glance we can turn fields into columns. Under **Available fields** on the left, find `attributes.dice.value` and `severity.text` and click **Add** for each. Now every row shows the roll next to its severity. Keep this view in mind, it's exactly how we'll compare our logs before and after processing in the next episode.
+The **`resource`** fields are **resource attributes**.
 
-<!-- TODO screenshot of Discover with attributes.dice.value and severity.text added as columns -->
+
+Instead of describing the event, they tell us where the telemetry came from, our application, process, and host. Because they describe the source and not the event, they stay the same on every log, unlike `dice.value`, which changes with each roll. 
+
+Just like we saw with traces and metrics, many were added automatically, and some are more than we need, like host identifiers, the process owner, and the command used to start our app. We'll clean these up in the next episode.
+
+<img width="2275" height="1119" alt="image" src="https://github.com/user-attachments/assets/8571386b-eef6-4f6d-9a0c-d7ff053eb3e0" />
+
+The **severity** fields tell us how important an event is. 
+
+We set every roll to `INFO` because they're routine, so here we see a `severity.text` of `INFO` and a `severity.number` of `9`.
+
+That `9` has nothing to do with the number we rolled, in OpenTelemetry, `9` is the `INFO` level. In the next episode we'll give our rolls different severity levels and use them to filter our logs.
+
+<img width="1945" height="1113" alt="image" src="https://github.com/user-attachments/assets/e943ab24-c089-4673-b44c-59b741f32f2d" />
+
+At the bottom is the **trace context**, a `traceId` and `spanId` we never added ourselves. 
+
+OpenTelemetry attached them automatically because this log was created while a traced request was running. The `traceId` links this log to that request's trace, so we can jump straight from a log to the full request it belongs to.
+
+**Scan many logs at once.** 
+
+Expanding one record is great for a single event, but to compare several at a glance we can turn fields into columns. 
+
+Under **Available fields** on the left, find `attributes.dice.value` and `severity.text` and click **Add** for each. 
+
+Now every row shows the roll next to its severity. Keep this view in mind, it's exactly how we'll compare our logs before and after processing in the next episode.
+<img width="2192" height="1126" alt="image" src="https://github.com/user-attachments/assets/5a1ed192-b2b9-427d-b3a8-2909df0ade98" />
 
 Now that logs are being generated and exported through the Collector, we can start processing them before they're stored.
