@@ -404,7 +404,9 @@ And we were storing every single roll, even though we might not need all of them
 
 That's where **processors** come in.
 
-If you followed along with the traces and metrics episodes, processors should look familiar. They run inside the OTel Collector and let us modify, enrich, and filter our telemetry before it's exported. This time, we'll put them to work on our logs.
+If you followed along with the traces and metrics episodes, processors should look familiar. They run inside the OTel Collector and let us modify, enrich, and filter our telemetry before it's exported. 
+
+This time, we'll put them to work on our logs.
 
 <img width="1280" height="716" alt="Logs pipeline with processors in the OTel Collector" src="images/processed-logs-pipeline.gif" />
 
@@ -418,7 +420,6 @@ Let's get everything ready.
 ## Run the learning environment locally
 
 If you've been following along from the last episode, you should already have two terminals open.
-
 One is running the Roll the Dice app and the other is running Docker. We'll reuse both.
 
 If you still have the third terminal open with the filtered Collector output, go ahead and stop it with `Ctrl + C`.
@@ -458,9 +459,12 @@ Now that our logs are flowing, let's take a look at the configuration that's pro
 
 In your code editor, make sure the `logs/add-processors` folder is open. Then head into the `otel` directory and open `otel-collector-config.yaml`.
 
-In our bare-bones setup, our configuration had three main parts: receivers, exporters, and service pipelines. This time, there's a fourth, **processors**.
+In our bare-bones setup, our configuration had three main parts: receivers, exporters, and service pipelines. 
 
-You'll notice this config has pipelines for traces, metrics, and logs, and some of the processors are shared across them. For this episode, we'll focus on the logs pipeline.
+This time, there's a fourth, **processors**.
+
+You'll notice this config has pipelines for traces, metrics, and logs, and some of the processors are shared across them. 
+For this episode, we'll focus on the logs pipeline.
 
 > **Quick heads-up.** Just like in the last episode, the snippet below only shows the logs-related bits. Your actual file also includes the traces and metrics processors and exporters from the earlier episodes, we've just trimmed them out here so it's easier to focus on logs.
 
@@ -569,11 +573,11 @@ The same `resource` processor is shared across our traces, metrics, and logs pip
 
 **Follow along in OpenSearch Dashboards**
 
-Want to see these changes on your own setup? Open OpenSearch Dashboards at http://localhost:5601 and head to **Discover**.
+Want to see these changes on your own setup? 
 
-If you need to recreate the `otel-logs` index pattern, follow the same steps from the last episode, using `otel-logs` for the name and `@timestamp` for the time field.
+Open OpenSearch Dashboards at http://localhost:5601 and head to **Discover**.
 
-Then expand a log record, and you'll be able to spot the changes for yourself.
+If you need to recreate the `otel-logs` index pattern, follow the same steps from the last episode, using `otel-logs` for the name and `@timestamp` for the time field. Then expand a log record, and you'll be able to spot the changes for yourself.
 
 For each processor, we'll compare our logs from the bare-bones setup (**before**) with our processed logs (**after**).
 
@@ -616,7 +620,8 @@ processors:
 In our example, we're going to change the **severity** of some of our logs.
 
 Let's pretend that rolling a one is something we want to flag. Whenever `dice.value` is `1`, these two statements raise the severity from `INFO` to `WARN`:
-- `severity_number` becomes `SEVERITY_NUMBER_WARN`, which is `13` in OpenTelemetry.
+- severity_number becomes SEVERITY_NUMBER_WARN. 
+OpenTelemetry represents WARN with the number 13, so that's what you'll see as severity.number in Discover, just like INFO showed up as 9 in the last episode.
 - `severity_text` becomes `WARN`.
 
 Flagging those rolls helps them stand out from the rest, and it sets us up to decide which logs to keep in the next step.
@@ -653,7 +658,9 @@ Now let's close this record and take a look at the rest of our logs.
 
 Here's where things get interesting. Every log record we're seeing has a dice value of one.
 
-It's pretty unlikely that we rolled a one every single time. So what happened to all the other rolls? That's where our next processor comes in.
+It's pretty unlikely that we rolled a one every single time. 
+
+So what happened to all the other rolls? That's where our next processor comes in.
 
 ## 3. The `filter` processor
 
@@ -668,9 +675,9 @@ processors:
       - 'log.severity_number < SEVERITY_NUMBER_WARN'
 ```
 
-The `filter` processor drops any log record that matches its condition. In our example, that's anything with a severity below `WARN`.
+The `filter` processor drops any log record that matches its condition. 
 
-Since our rolls of one are now `WARN` and the rest are still `INFO`, only the ones make it through.
+In our example, that's anything with a severity below `WARN`. Since our rolls of one are now `WARN` and the rest are still `INFO`, only the ones make it through.
 
 Let's see the difference in OpenSearch.
 
@@ -697,7 +704,6 @@ Now that we've covered our processors, let's scroll down to the exporters.
 **Exporters send telemetry from the Collector to our backends.**
 
 There's one change here worth pointing out, and it has to do with **batching**.
-
 Before we get into it, let's revisit the batching we saw in the last episode.
 
 **Batching in the app**
@@ -772,7 +778,9 @@ service:
 
 Processors run in the order they're liste. First `resource`, then `transform`, and finally `filter`.
 
-That order is intentional. The `transform` processor changes our rolls of one to `WARN`, and then the `filter` processor drops anything below `WARN`.
+That order is intentional. 
+
+The `transform` processor changes our rolls of one to `WARN`, and then the `filter` processor drops anything below `WARN`.
 If we switched that order, every one of those rolls would still be `INFO` when it reached the filter, so they'd all be dropped.
 
 And with that, we've taken our logs pipeline one step further by processing our logs before they're stored.
@@ -784,8 +792,6 @@ That's a wrap on the OpenTelemetry for Beginners JavaScript Journey!
 
 We started by exploring what OpenTelemetry is. Then, one signal at a time, we built pipelines for traces, metrics, and logs.
 
-<img width="1280" height="716" alt="Pipelines for all three signals: traces, metrics, and logs" src="images/all-three-signals.gif" />
-
 We instrumented our app, configured the OTel Collector to receive, process, and export our telemetry, and explored our data in a different backend for each signal.
 
 And the best part? 
@@ -795,14 +801,16 @@ And the best part?
 We chose where to send it through the Collector configuration, without changing a line of application code. That flexibility is one of the great things about OpenTelemetry, and it helps us avoid getting locked into a single vendor.
 
 ## Where to go from here
- **Try it on your own app.** 
-Instrument one of your own applications and see what its telemetry tells you.
-**Experiment with processors.** 
-The [list of Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) is a great place to explore new ways to shape your data.
-**Connect with the community.** 
-If you have questions, the [OpenTelemetry documentation](https://opentelemetry.io/docs/) and the [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/) are great places to start.
+- **Try it on your own app.** 
+ Instrument one of your own applications and see what its telemetry tells you.
+- **Experiment with processors.** 
+  The [list of Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) is a great place to explore new ways to shape your data.
+- **Connect with the community.** 
+  If you have questions, the [OpenTelemetry documentation](https://opentelemetry.io/docs/) and the [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/) are great places to start.
 
-Thank you so much for following along with me throughout this series. I hope you enjoyed it and learned something useful along the way!
+Thank you so much for following along with me throughout this series. 
+
+I hope you enjoyed it and learned something useful along the way!
 
 ## Resources
 - [OpenTelemetry documentation](https://opentelemetry.io/docs/)
