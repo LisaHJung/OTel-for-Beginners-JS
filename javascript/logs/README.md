@@ -334,11 +334,7 @@ Our data is already in OpenSearch, but Dashboards still needs to know which inde
 
 4. Open the time field dropdown and select `@timestamp`, then click **Create index pattern**.
    <img width="1652" height="905" alt="image" src="https://github.com/user-attachments/assets/5a0c539d-c655-409b-9ad6-bfc78aeb4110" />
-> **A note on timestamps.** 
-
-Each log carries two. `@timestamp` is when the event happened in our app, and `observedTimestamp` is when the SDK collected it (a few seconds later, because of batching). 
-
-We use `@timestamp` so our logs line up on the timeline by when we actually rolled the dice.
+> **A note on timestamps.** Each log carries two. `@timestamp` is when the event happened in our app, and `observedTimestamp` is when the SDK collected it (a few seconds later, because of batching). We use `@timestamp` so our logs line up on the timeline by when we actually rolled the dice.
 
 **View your logs**
 1. Open the menu in the top-left corner and select **Discover**.
@@ -811,15 +807,17 @@ And the best part?
 
 **Our app never needed to know where its telemetry was going.** 
 
-We chose where to send it through the Collector configuration, without changing a line of application code. That flexibility is one of the great things about OpenTelemetry, and it helps us avoid getting locked into a single vendor.
+We chose where to send it through the Collector configuration, without changing a line of application code. 
+
+That flexibility is one of the great things about OpenTelemetry, and it helps us avoid getting locked into a single vendor.
 
 ## Where to go from here
-- **Try it on your own app.** 
- Instrument one of your own applications and see what its telemetry tells you.
-- **Experiment with processors.** 
-  The [list of Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) is a great place to explore new ways to shape your data.
-- **Connect with the community.** 
-  If you have questions, the [OpenTelemetry documentation](https://opentelemetry.io/docs/) and the [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/) are great places to start.
+- **Try it on your own app.**
+  - Instrument one of your own applications and see what its telemetry tells you.
+- **Experiment with processors.**
+  - The [list of Collector processors](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor) is a great place to explore new ways to shape your data.
+- **Connect with the community.**
+  - If you have questions, the [OpenTelemetry documentation](https://opentelemetry.io/docs/) and the [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/) are great places to start.
 
 Thank you so much for following along with me throughout this series. 
 
