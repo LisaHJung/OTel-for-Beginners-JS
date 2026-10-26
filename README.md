@@ -41,7 +41,7 @@ We'll also check out the series repo and everything you'll need to follow along 
 
 ## What we're building
 
-<img width="1024" height="574" alt="What we are building: the Roll the Dice app with instrumentation, the OTel Collector (receive, process, and export), an observability backend for storage, and an observability frontend for visualization" src="images/what-we-are-building.jpg" />
+<img width="2049" height="1150" alt="What we are building: the Roll the Dice app with instrumentation, the OTel Collector (receive, process, and export), an observability backend for storage, and an observability frontend for visualization" src="images/what-we-are-building.jpg" />
 
 Our setup has four main parts:
 - **Roll the Dice**, a simple Node.js app. We'll use OpenTelemetry **instrumentation** to generate traces, metrics, and logs from it.
