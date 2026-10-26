@@ -310,9 +310,8 @@ This order matters because the instrumentation needs to be ready when the app st
 
 Now that our app is set up to generate traces, let's see how the Collector receives and exports them.
 
-**otel/otel-collector-config.yaml**
-
 ```yaml
+# otel/otel-collector-config.yaml
 receivers:
   otlp:
     protocols:
@@ -342,6 +341,7 @@ We're keeping this configuration bare-bones, with three main sections: receivers
 ### Receivers
 
 ```yaml
+# otel/otel-collector-config.yaml
 receivers:
   otlp:
     protocols:
@@ -359,6 +359,7 @@ Receivers tell the Collector how to accept incoming telemetry.
 ### Exporters
 
 ```yaml
+# otel/otel-collector-config.yaml
 exporters:
   debug:
     verbosity: detailed
@@ -383,6 +384,7 @@ Exporters define where the Collector sends telemetry data. In this setup, we're 
 ### Service
 
 ```yaml
+# otel/otel-collector-config.yaml
 service:
   pipelines:
     traces:
@@ -480,85 +482,88 @@ In the next episode, we'll use processors to remove these too (orange boxes):
 
 And that's our first pipeline up and running! In the next episode, we'll add processors to modify, enrich, and clean up our traces before they reach Jaeger.
 
-# Episode 5 - Processing Traces: OpenTelemetry Collector in Action
+# Episode 4 - Processing Traces: OpenTelemetry Collector in Action
 
-Objectives:
-- Add resource context (deployment.environment.name)
-- Remove noisy/sensitive resource + span attributes
-- Batch spans for efficient export
+In the last episode, we built our first pipeline and explored our traces in Jaeger. Along the way, we spotted [span attributes](#tags-span-attributes) and [resource attributes](#process-resource-attributes) we don't need. We also noticed our traces were missing the environment they came from.
 
-## Project folders 
+In this episode, we'll fix that using **processors**.
 
-<img width="2550" height="1434" alt="image" src="https://github.com/user-attachments/assets/0de6e8b5-ed8a-4480-aaed-06fbddc99218" />
+## Adding processors
 
-1. `bare-bones-setup/` (**Episode 4**)
-- Instruments the Roll the Dice app and sends traces to the OpenTelemetry Collector.
-- The Collector forwards traces to Jaeger for storage and visualization with no additional processing.
+<img width="1280" height="714" alt="Adding processors: inside the Collector's traces pipeline, traces go from the otlp receiver through the resource processor, which adds the environment and drops host and process details, then the attributes/traces processor, which drops client and network details. The otlp_grpc/jaeger exporter groups traces with its sending queue, then sends them to Jaeger" src="images/adding-processors.gif" />
 
-<img width="2553" height="1435" alt="image" src="https://github.com/user-attachments/assets/6e65b7ef-3371-451d-bd88-37bd267cb142" />
+Processors run inside the Collector, between the receiver and the exporter. They let us change our telemetry before it leaves the Collector.
 
-2. `add-processors/` (**Current episode**)
-- Uses the same setup as `bare-bones-setup`, but applies processors to incoming traces.
-- These processors enrich resource metadata, remove low-value or sensitive attributes, and batch traces for more efficient exporting.
+In this episode, we'll use them to:
+- Add the environment our traces came from and drop host and process details we don't need.
+- Drop client and network details that are sensitive or noisy.
 
-*At this point, you should still have two terminals open: one for the Roll the Dice app, and one for Docker.*
+We'll also configure our Jaeger exporter to send traces in batches.
 
-### Step 1: Switch folders + restart app (Terminal 1)
-In the terminal running the Roll the Dice app, stop the app, navigate to the `add-processors` folder, and restart the app.
+All of this happens in the Collector, so we won't need to touch our app's code.
 
-```
-# stop the app
-CTRL + C
+## Project folders
 
-# navigate to the add-processors folder
+1. `javascript/traces/bare-bones-setup/` (**Episode 3**)
+   - Instruments the Roll the Dice app and sends traces to the Collector.
+   - The Collector exports traces to Jaeger with no additional processing.
+
+2. `javascript/traces/add-processors/` (**Current episode**)
+   - Uses the same app and instrumentation as `bare-bones-setup`.
+   - Adds processors to the Collector configuration and batches traces before exporting them to Jaeger.
+
+## Run the updated setup
+
+If you've been following along, you should still have two terminals open: one running the Roll the Dice app and one running Docker.
+
+**Terminal 1: restart the app**
+
+> First, press **Ctrl + C** to stop the running app.
+
+```bash
 cd ../add-processors
-
-# install dependencies and start the app
 npm install
 npm start
-``` 
-### Step 2: Restart Collector + Jaeger (Terminal 2)
-In the terminal running Docker, stop the OpenTelemetry Collector and Jaeger, navigate to the `add-processors` folder, and restart them.
 ```
-# stop the running containers
-CTRL + C
 
-# navigate to the add-processors folder
+The `add-processors` folder has its own dependencies, so we run `npm install` before starting the app.
+
+**Terminal 2: restart the Collector and Jaeger**
+
+```bash
+docker compose down
 cd ../add-processors
-
-# restart with the updated configuration
-docker compose up --build 
+docker compose up
 ```
-This reloads the Collector with the updated processor configuration. 
 
-### Step 3: Generate traces
-Refresh the Roll the Dice app page multiple times at `http://localhost:8080/rolldice` to send traces to the newly configured OpenTelemetry Collector.
+**Generate some traces**
+
+Once everything is running again, head back to the Roll the Dice app at http://localhost:8080/rolldice and refresh the page a few times.
 
 <img width="1540" height="568" alt="Refreshing the Roll the Dice app at localhost:8080/rolldice, which shows a new random number from 1 to 6 each time" src="images/roll-the-dice.gif" />
 
-### Step 4: Verify traces (Collector logs and Jaeger UI) 
+In the terminal running Docker, we'll see our traces flowing through the Collector. Notice `deployment.environment.name` near the top (orange box). That's our first hint that something has changed.
 
-Check the Collector logs to verify that traces are flowing through the Collector.
-<img width="890" height="997" alt="image" src="https://github.com/user-attachments/assets/a8c0a4d1-9244-40da-8b8c-1f508547e9cb" />
+<img width="1798" height="1796" alt="Collector debug output showing the resource attributes of a processed trace, with deployment.environment.name set to local highlighted, followed by GET /rolldice spans with fewer span attributes" src="images/collector-debug-output-processed.png" />
 
-Open the Jaeger UI at `http://localhost:16686` and take a look at the new traces coming in.
-<img width="2542" height="1267" alt="image" src="https://github.com/user-attachments/assets/7f4a5cb5-f59f-4d77-b640-7cf0a8e7eb1a" />
+**Check Jaeger**
 
-Now that we’ve confirmed the newly transformed traces are flowing through the Collector, let’s examine the updated configuration to understand how trace data is processed before export.
+Go to http://localhost:16686, select `OTel4Beginners` in the **Service** dropdown (orange box), and click **Find Traces** (blue arrow).
 
-After that, we’ll look at the new traces in more detail to see how the processors have transformed them.
+<img width="2048" height="1065" alt="Jaeger search page with OTel4Beginners selected in the Service dropdown, an arrow pointing to the Find Traces button, and results showing 10 OTel4Beginners GET /rolldice traces with 2 spans each" src="images/jaeger-results-processed.png" />
 
-## New OpenTelemetry Collector Configuration
+> **Don't see new traces right away?** Give it a few seconds, then refresh. We'll see why when we get to [batching](#batching-in-the-exporter).
 
-### Processors modify, filter, or enrich telemetry data within the Collector before it is exported.
+We can't tell from this overview alone, but these traces are no longer raw. 
 
-Three processors have been added to the Collector configuration to modify trace data before export:
-1. `resource` 
-2. `attributes` 
-3. `batch` 
+The Collector processed them before sending them to Jaeger. As we walk through the Collector configuration, we'll compare what a trace looked like before with what it looks like now.
 
-**otel/otel-collector-config.yaml**
-```
+## Collector configuration
+
+In your code editor, open the `javascript/traces/add-processors` folder. Then open `otel/otel-collector-config.yaml`.
+
+```yaml
+# otel/otel-collector-config.yaml
 receivers:
   otlp:
     protocols:
@@ -578,7 +583,7 @@ processors:
       - key: host.id
         action: delete
       - key: host.name
-        action: delete  
+        action: delete
       - key: process.command
         action: delete
       - key: process.command_args
@@ -590,22 +595,18 @@ processors:
       - key: process.pid
         action: delete
 
-  attributes:
+  attributes/traces:
     actions:
-      - key: http.user_agent
+      - key: user_agent.original
         action: delete
-      - key: net.host.ip
+      - key: client.address
         action: delete
-      - key: net.peer.ip
+      - key: network.peer.address
         action: delete
-      - key: net.host.port
+      - key: network.peer.port
         action: delete
-      - key: net.peer.port
+      - key: server.port
         action: delete
-
-  batch:
-    timeout: 5s
-    send_batch_size: 512
 
 exporters:
   debug:
@@ -615,21 +616,32 @@ exporters:
     endpoint: jaeger:4317
     tls:
       insecure: true
+    sending_queue:
+      sizer: items
+      batch:
+        flush_timeout: 5s
+        min_size: 512
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resource, attributes, batch]
+      processors: [resource, attributes/traces]
       exporters: [debug, otlp_grpc/jaeger]
 ```
-**1. The `resource` processor modifies metadata about the service or host.**
 
-In this configuration, the resource processor inserts a new resource attribute called `deployment.environment.name` and sets its value to `local`.
+Our bare-bones configuration had receivers, exporters, and a `service` section. Here, we've added a `processors` section with two processors: the `resource` processor and the `attributes/traces` processor.
 
-This makes it easier to identify where traces are coming from when working across multiple environments.
+### The resource processor
 
-```
+The `resource` processor lets us change **resource attributes**, the attributes that describe where our telemetry came from. In Jaeger, these are the attributes we saw in the [Process](#process-resource-attributes) section.
+
+We're using it to add our environment and remove details we don't need.
+
+**Add the environment**
+
+```yaml
+# otel/otel-collector-config.yaml
 processors:
   resource:
     attributes:
@@ -638,12 +650,17 @@ processors:
         action: insert
 ```
 
-**After (processed telemetry)**
-<img width="2560" height="994" alt="image" src="https://github.com/user-attachments/assets/a057f3c0-8af6-4eb6-a435-c6f2c30290ca" />
+Each entry follows the same pattern:
+- **`key`** is the attribute we want to change. Here, it's `deployment.environment.name`.
+- **`value`** is set to `local` because our app is running locally.
+- **`action`** tells the Collector what to do. The `insert` action adds the attribute if it's missing.
 
-In addition, the following resource attributes were deleted to remove low-value or sensitive host and process metadata.
+That way, we can tell which environment our traces came from.
 
-```
+**Remove host and process details**
+
+```yaml
+# otel/otel-collector-config.yaml
 processors:
   resource:
     attributes:
@@ -652,7 +669,7 @@ processors:
       - key: host.id
         action: delete
       - key: host.name
-        action: delete  
+        action: delete
       - key: process.command
         action: delete
       - key: process.command_args
@@ -665,66 +682,106 @@ processors:
         action: delete
 ```
 
-This helps reduce noise, improve privacy, and keep trace data focused.
+These are the host and process details we highlighted in the last episode. Each entry uses the `delete` action, so the Collector removes that attribute before our traces reach Jaeger.
 
-**Before (raw telemetry)**
-<img width="2558" height="1289" alt="image" src="https://github.com/user-attachments/assets/a177df0b-4183-4f02-8ffa-1aad6f8684b5" />
+We're keeping details we still find useful, like the Node.js runtime version.
 
-**After (processed telemetry)**
-<img width="2560" height="984" alt="image" src="https://github.com/user-attachments/assets/1c710cf6-b81f-4aa7-849d-d721e8ce2f55" />
+**Before and after**
 
-**2. The `attributes` processor modifies, adds, or removes span attributes.**
+<img width="2048" height="946" alt="The Process section of a raw trace next to a processed trace. The raw trace has host and process attributes highlighted. The processed trace has deployment.environment.name set to local, and the highlighted attributes are gone" src="images/jaeger-process-before-after.jpg" />
 
-The following span attributes were deleted to keep span data focused on application behavior rather than client or network details.
+The processed trace now includes `deployment.environment.name`, set to `local`. The host and process details we deleted are gone, and the useful runtime details are still there.
 
-```
+### The attributes processor
+
+```yaml
+# otel/otel-collector-config.yaml
 processors:
-  attributes:
+  attributes/traces:
     actions:
-      - key: http.user_agent
+      - key: user_agent.original
         action: delete
-      - key: net.host.ip
+      - key: client.address
         action: delete
-      - key: net.peer.ip
+      - key: network.peer.address
         action: delete
-      - key: net.host.port
+      - key: network.peer.port
         action: delete
-      - key: net.peer.port
+      - key: server.port
         action: delete
 ```
 
-**Before (raw telemetry)**
-<img width="2549" height="1247" alt="image" src="https://github.com/user-attachments/assets/f0aee2dc-c218-4966-b867-eb4161523ad0" />
+The `attributes` processor lets us change **span attributes**, the details about the request itself. In Jaeger, these are the attributes we saw in the [Tags](#tags-span-attributes) section.
 
-**After (processed telemetry)**
-<img width="2560" height="1190" alt="image" src="https://github.com/user-attachments/assets/7980e73b-af1f-4336-aedb-49e1eb1257c9" />
+We don't need the user agent, IP addresses, or ports for this demo, and some of them could reveal information about our users. So we've listed them here with the `delete` action.
 
-**3. The `batch` processor groups telemetry data into batches before exporting.**
+The `/traces` part of the name works the same way as in `otlp_grpc/jaeger`. It's a name we chose to tell processors of the same type apart.
+
+**Before and after**
+
+<img width="2048" height="770" alt="The Tags section of a raw trace next to a processed trace. The raw trace has client.address, network.peer.address, network.peer.port, server.port, and user_agent.original highlighted. In the processed trace, those attributes are gone" src="images/jaeger-tags-before-after.jpg" />
+
+The client and peer addresses, the server port, and the user agent are gone. The details about the request itself are still there.
+
+### Batching in the exporter
+
+```yaml
+# otel/otel-collector-config.yaml
+exporters:
+  debug:
+    verbosity: detailed
+
+  otlp_grpc/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+    sending_queue:
+      sizer: items
+      batch:
+        flush_timeout: 5s
+        min_size: 512
 ```
-batch:
-    timeout: 5s
-    send_batch_size: 512
 
-```
-As a best practice, the `batch` processor should almost always be included in production-ready Collector configurations.
+We've made one more change in the exporters to batch our traces. **Batching** lets the Collector send telemetry in fewer, larger requests, which reduces network overhead as traffic grows.
 
-Adjust these parameters to fit your specific use case.
+We set up the `otlp_grpc/jaeger` exporter in the last episode. What's new is its `sending_queue`, which handles batching:
+- **`flush_timeout: 5s`** is how long the exporter can wait before sending a batch, even if it isn't full.
+- **`min_size: 512`** with **`sizer: items`** tells the exporter to send a batch once it reaches 512 items. For traces, those items are spans.
 
-**The service component was updated to tie the receivers, processors, and exporters together into a traces pipeline.**
+Whichever comes first, 512 spans or the 5-second timeout, triggers the export.
 
-```
+That explains the delay we saw in Jaeger earlier. A few dice rolls won't generate 512 spans, so our batch is sent when the timeout expires. The `debug` exporter doesn't batch, which is why our traces showed up in the terminal right away.
+
+These values are a starting point. We can adjust them to suit our needs.
+
+> **Seen a `batch` processor in other examples?** Batching used to be configured as a separate processor. The Collector is moving batching into the exporter's sending queue, which is what we're using here.
+
+### Service
+
+```yaml
+# otel/otel-collector-config.yaml
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resource, attributes, batch]
+      processors: [resource, attributes/traces]
       exporters: [debug, otlp_grpc/jaeger]
 ```
 
-**IMPORTANT**
+As we saw in the last episode, the `service` section is where everything comes together. Our traces pipeline connects our receiver, our two processors, and our exporters.
 
-In the `service` component, processors are applied in the order they are listed in the pipeline.
+The Collector runs processors in the order they're listed. For these two, the order doesn't matter since they change different attributes. Later in the series, we'll see a pipeline where it does.
 
-The `batch` processor should be listed **last** so it can batch the final version of the data before exporting.
+**Putting it all together**
 
-In the next episode, we’ll shift focus from traces to metrics and walk through how to collect, process, and export application metrics using the OpenTelemetry Collector.
+<img width="1280" height="714" alt="Putting it all together: the Roll the Dice app sends traces to the Collector's otlp receiver. The resource processor adds the environment and drops host and process details, then the attributes/traces processor drops client and network details. The processed traces go to the debug exporter, which prints them to the terminal, and the otlp_grpc/jaeger exporter, which groups them with its sending queue and sends them to Jaeger" src="images/putting-it-all-together-processors.gif" />
+
+Let's follow our traces through the pipeline.
+
+First, they come in through the OTLP receiver. From there, the `resource` processor adds our environment and removes the host and process details we don't need. Then, the `attributes/traces` processor takes care of the span attributes we want to remove.
+
+Once that's done, both exporters get the processed traces. The `debug` exporter prints them to the terminal, and `otlp_grpc/jaeger` sends them to Jaeger in batches.
+
+And that's how our raw traces become processed traces, all without changing a single line of our app's code!
+
+In the next episode, we'll move on to our second signal, metrics. We'll instrument our app for metrics and build a bare-bones pipeline for them.
