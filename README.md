@@ -325,7 +325,7 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlp/jaeger:
+  otlp_grpc/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
@@ -334,7 +334,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [debug, otlp/jaeger]
+      exporters: [debug, otlp_grpc/jaeger]
 ```
 
 We're keeping this configuration bare-bones, with three main sections: receivers, exporters, and service pipelines.
@@ -363,7 +363,7 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlp/jaeger:
+  otlp_grpc/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
@@ -375,8 +375,8 @@ Exporters define where the Collector sends telemetry data. In this setup, we're 
   - With `verbosity` set to `detailed`, we can inspect individual spans and their details. 
   - That's what we saw in the terminal running Docker when we refreshed the app. 
   - It helps us check what's flowing through the Collector during development and debugging.
-- The **`otlp/jaeger`** exporter sends our traces to Jaeger, where we can store and visualize them.
-  - The `otlp` part identifies the exporter type, and the name after the slash helps us tell exporters of the same type apart.
+- The **`otlp_grpc/jaeger`** exporter sends our traces to Jaeger, where we can store and visualize them.
+  - The `otlp_grpc` part identifies the exporter type, an OTLP exporter that sends data over gRPC. The name after the slash helps us tell exporters of the same type apart.
   - The endpoint `jaeger:4317` points to our Jaeger service inside Docker, using the default port for OTLP over gRPC.
   - We've set `insecure` to `true` to turn off TLS for our local demo. In production, we'd use TLS to secure the connection.
 
@@ -387,7 +387,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [debug, otlp/jaeger]
+      exporters: [debug, otlp_grpc/jaeger]
 ```
 
 Defining receivers and exporters alone doesn't enable them. We need to include them in a pipeline, and that's where the `service` section comes in. It ties everything together by defining how data moves through the Collector.
@@ -395,13 +395,13 @@ Defining receivers and exporters alone doesn't enable them. We need to include t
 In our traces pipeline:
 - The **`otlp`** receiver accepts traces from our app.
 - The **`debug`** exporter prints them to the terminal.
-- The **`otlp/jaeger`** exporter sends them to Jaeger.
+- The **`otlp_grpc/jaeger`** exporter sends them to Jaeger.
 
 **Putting it all together**
 
-<img width="1280" height="714" alt="Collector configuration: the Roll the Dice app sends traces to the Collector's otlp receiver over gRPC. Inside the traces pipeline, the receiver passes them to both the debug exporter, which prints them to the terminal, and the otlp/jaeger exporter, which sends them to Jaeger to store and visualize" src="images/collector-configuration.gif" />
+<img width="1280" height="714" alt="Collector configuration: the Roll the Dice app sends traces to the Collector's otlp receiver over gRPC. Inside the traces pipeline, the receiver passes them to both the debug exporter, which prints them to the terminal, and the otlp_grpc/jaeger exporter, which sends them to Jaeger to store and visualize" src="images/collector-configuration.gif" />
 
-Our app sends traces over gRPC to the Collector's OTLP receiver. Inside our traces pipeline, the receiver passes them to both exporters. The `debug` exporter prints them to the terminal, while `otlp/jaeger` sends them to Jaeger, where we can store and visualize them.
+Our app sends traces over gRPC to the Collector's OTLP receiver. Inside our traces pipeline, the receiver passes them to both exporters. The `debug` exporter prints them to the terminal, while `otlp_grpc/jaeger` sends them to Jaeger, where we can store and visualize them.
 
 ## Explore our traces in Jaeger
 
@@ -611,7 +611,7 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlp/jaeger:
+  otlp_grpc/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
@@ -621,7 +621,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [resource, attributes, batch]
-      exporters: [debug, otlp/jaeger]
+      exporters: [debug, otlp_grpc/jaeger]
 ```
 **1. The `resource` processor modifies metadata about the service or host.**
 
@@ -718,7 +718,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [resource, attributes, batch]
-      exporters: [debug, otlp/jaeger]
+      exporters: [debug, otlp_grpc/jaeger]
 ```
 
 **IMPORTANT**
