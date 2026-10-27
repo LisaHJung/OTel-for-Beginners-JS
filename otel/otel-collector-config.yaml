@@ -33,15 +33,15 @@ processors:
   # Modify span attributes (for traces)
   attributes/traces:
     actions:
-      - key: http.user_agent
+      - key: user_agent.original
         action: delete
-      - key: net.host.ip
+      - key: client.address
         action: delete
-      - key: net.peer.ip
+      - key: network.peer.address
         action: delete
-      - key: net.host.port
+      - key: server.port
         action: delete
-      - key: net.peer.port
+      - key: network.peer.port
         action: delete
 
   # Modify metric datapoint attributes (for metrics)
@@ -69,20 +69,24 @@ processors:
         action: update
         new_name: http.server.request.duration
 
-  # Batch for efficient export
-  batch:
-    timeout: 5s
-    send_batch_size: 512
-
 exporters:
   debug:
     verbosity: detailed
 
-  otlp/jaeger:
+  # Jaeger receives our traces. Batching is handled here at the exporter
+  # level (sending_queue.batch) instead of a standalone batch processor.
+  otlp_grpc/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
+    sending_queue:
+      sizer: items
+      batch:
+        flush_timeout: 5s
+        min_size: 512
 
+  # Prometheus scrapes the Collector (pull-based), so there's nothing to batch
+  # on the way out. No batch processor and no sending_queue on this exporter.
   prometheus:
     endpoint: 0.0.0.0:8889
 
@@ -90,9 +94,9 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resource, attributes/traces, batch]
-      exporters: [debug, otlp/jaeger]
+      processors: [resource, attributes/traces]
+      exporters: [debug, otlp_grpc/jaeger]
     metrics:
       receivers: [otlp]
-      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform, batch]
+      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform]
       exporters: [debug, prometheus]

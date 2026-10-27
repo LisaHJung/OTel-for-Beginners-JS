@@ -353,7 +353,7 @@ In this episode, we'll fix that using **processors**, which run inside the Colle
 
 2. `add-processors/` (**Current episode**)
 - Uses the same setup as `bare-bones-setup`, but applies processors to incoming metrics.
-- These processors enrich resource metadata, drop metrics we don't need, remove low-value or sensitive labels, rename a metric to match current conventions, and batch metrics for more efficient exporting.
+- These processors enrich resource metadata, drop metrics we don't need, remove low-value or sensitive labels, and rename a metric to match current conventions.
 
 **In the terminal running the Roll the Dice app, stop the app and navigate to the `add-processors` folder:**
 ```
@@ -399,9 +399,9 @@ Switch back to the code editor. Make sure you have the metrics/add-processors fo
 
 Back in the bare-bones setup, this file had just three top-level sections, the receivers, the exporters, and the service block that organizes our pipelines. Now a fourth one joins them, `processors`, which is where each processor gets defined.
 
-Because we're building on top of the traces episodes, the file lays out both a traces pipeline and a metrics pipeline, and the two lean on a couple of shared processors. Our attention here is on the **metrics** pipeline, which puts five processors to work.
+Because we're building on top of the traces episodes, the file lays out both a traces pipeline and a metrics pipeline, and the two lean on a couple of shared processors. Our attention here is on the **metrics** pipeline, which puts four processors to work.
 
-Each one has a distinct job, so we'll walk through them one at a time, in the order `resource`, `attributes/metrics`, `filter/exclude_metrics`, `metricstransform`, and `batch`. The order they actually run in inside the pipeline is a little different, and we'll come back to that once we've seen what each one does.
+Each one has a distinct job, so we'll walk through them one at a time, in the order `resource`, `attributes/metrics`, `filter/exclude_metrics`, and `metricstransform`. The order they actually run in inside the pipeline is a little different, and we'll come back to that once we've seen what each one does.
 
 **otel/otel-collector-config.yaml**
 ```
@@ -471,11 +471,6 @@ processors:
         action: update
         new_name: http.server.request.duration
 
-  # Batch for efficient export
-  batch:
-    timeout: 5s
-    send_batch_size: 512
-
 exporters:
   debug:
     verbosity: detailed
@@ -484,6 +479,11 @@ exporters:
     endpoint: jaeger:4317
     tls:
       insecure: true
+    sending_queue:
+      sizer: items
+      batch:
+        flush_timeout: 5s
+        min_size: 512
 
   prometheus:
     endpoint: 0.0.0.0:8889
@@ -492,15 +492,15 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resource, attributes/traces, batch]
+      processors: [resource, attributes/traces]
       exporters: [debug, otlp/jaeger]
     metrics:
       receivers: [otlp]
-      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform, batch]
+      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform]
       exporters: [debug, prometheus]
 ```
 
-With the full config in view, here's the role each of the five processors plays for our metrics.
+With the full config in view, here's the role each of the four processors plays for our metrics.
 
 **1. The `resource` processor modifies metadata about the service or host.**
 
@@ -613,17 +613,25 @@ That's the Prometheus exporter doing its job. On the way out it rewrites names t
 
 <img width="2505" height="1407" alt="image" src="https://github.com/user-attachments/assets/aff1d31c-9bd3-4207-9778-38d13402997e" />
 
-**5. The `batch` processor groups telemetry into batches before exporting.**
-```
-batch:
-    timeout: 5s
-    send_batch_size: 512
-```
-We first introduced this one in the traces processing episode, and it behaves identically here. It gathers telemetry into groups before export. That's far more efficient than shipping each item on its own. Batching is a standard best practice for any production-bound Collector. 
+**What about batching?**
 
-You'll spot it in both pipelines. In the traces pipeline it groups spans, and in the metrics pipeline it groups metric data points. Each pipeline handles its own signal on its own, so spans and metrics are never bundled into the same batch.
+If you followed the traces processing episode, you might expect a `batch` processor at the end of the metrics pipeline. You won't find one here.
 
-_Note: the OpenTelemetry Collector is migrating batching into the exporter's sending queue, and the standalone batch processor is slated for deprecation. For now it remains a common, widely used choice._
+Prometheus **pulls**, or scrapes, metrics from the Collector. The Collector never pushes metrics out to Prometheus itself, so there's nothing to batch on the way out.
+
+Traces work differently. The Jaeger exporter **pushes** spans to Jaeger, so they're still batched. Instead of a standalone `batch` processor, the batching now happens in the exporter's `sending_queue`, which is where the Collector is moving batching:
+```
+otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+    sending_queue:
+      sizer: items
+      batch:
+        flush_timeout: 5s
+        min_size: 512
+```
+We'll take a closer look at how `sending_queue` works in the logs episodes.
 
 **The `service` component is what ties everything together, connecting our receivers, processors, and exporters into an actual pipeline.**
 
@@ -633,17 +641,16 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
-      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform, batch]
+      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform]
       exporters: [debug, prometheus]
 ```
 
 **IMPORTANT**
 
-Processors run in the exact order they're listed in the pipeline, so for our metrics that's `resource`, then `filter/exclude_metrics`, then `attributes/metrics`, then `metricstransform`, and finally `batch`.
+Processors run in the exact order they're listed in the pipeline, so for our metrics that's `resource`, then `filter/exclude_metrics`, then `attributes/metrics`, and finally `metricstransform`.
 - Filtering comes **early** on purpose. We drop the metrics we don't want before spending any effort transforming the ones we're keeping.
-- `batch` is listed **last** so it groups the fully-processed telemetry right before it leaves the Collector.
 
-With these processors in place, our Collector is no longer just passing data through. It's actively transforming our telemetry, adding useful context, dropping metrics we don't need, removing low-value or sensitive labels, renaming metrics to match current conventions, and preparing our metrics for efficient export.
+With these processors in place, our Collector is no longer just passing data through. It's actively transforming our telemetry, adding useful context, dropping metrics we don't need, removing low-value or sensitive labels, and renaming metrics to match current conventions.
 
 In this episode, we put processors to work transforming our metrics inside the OpenTelemetry Collector. 
 
