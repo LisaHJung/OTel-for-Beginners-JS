@@ -44,12 +44,6 @@ processors:
       - key: network.peer.port
         action: delete
 
-  # Modify metric datapoint attributes (for metrics)
-  attributes/metrics:
-    actions:
-      - key: net.host.port
-        action: delete
-
   # Filter out unwanted metrics to reduce cardinality
   filter/exclude_metrics:
     error_mode: ignore
@@ -57,17 +51,8 @@ processors:
       metric:
         # Drop a low-level V8 internal metric most apps don't need.
         # The per-heap-space physical size is deep engine detail. The
-        # useful memory signals (v8js.memory.heap.used / heap.limit) stay.
+        # useful memory signal (v8js.memory.heap.used) stays.
         - 'name == "v8js.memory.heap.space.physical_size"'
-
-  # Rename and transform metrics
-  metricstransform:
-    transforms:
-      # Rename the HTTP duration metric to match the current OTel
-      # semantic conventions (http.server.duration -> http.server.request.duration)
-      - include: http.server.duration
-        action: update
-        new_name: http.server.request.duration
 
 exporters:
   debug:
@@ -98,5 +83,5 @@ service:
       exporters: [debug, otlp_grpc/jaeger]
     metrics:
       receivers: [otlp]
-      processors: [resource, filter/exclude_metrics, attributes/metrics, metricstransform]
+      processors: [resource, filter/exclude_metrics]
       exporters: [debug, prometheus]
