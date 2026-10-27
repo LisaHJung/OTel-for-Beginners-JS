@@ -146,7 +146,7 @@ Once you've installed the [prerequisites](#prerequisites), clone the repo so you
 git clone https://github.com/open-telemetry/opentelemetry-for-beginners.git
 ```
 
-In the next episode, we'll start up our learning environment and build our first pipeline: a bare-bones trace pipeline.
+In the next episode, we'll start up our learning environment and build our first trace pipeline with a bare-bones setup.
 
 # Episode 3 - Trace Instrumentation & Bare-Bones Collector Configuration
 
@@ -217,11 +217,13 @@ As you refresh, watch the terminal running Docker. You'll see trace data appear 
 
 So our app is generating traces, and the Collector is receiving them. But how does our app actually generate these traces?
 
-## Instrumentation: the big picture
+## What is instrumentation?
 
 The answer is **instrumentation**. Instrumentation enables our app to generate telemetry, like traces, metrics, and logs.
 
-OpenTelemetry gives us different ways to instrument an application. Here are the ones we'll use in this series:
+OpenTelemetry gives us different ways to instrument an application. 
+
+Here are the ones we'll use in this series:
 
 | | Automatic instrumentation | Manual instrumentation |
 |---|---|---|
@@ -280,9 +282,12 @@ sdk.start();
 
 It does four main things:
 
-1. **Imports the three OTel packages** we just saw in `package.json`: the OTel SDK, the auto-instrumentation package, and the OTLP trace exporter.
-2. **Creates a Node SDK instance** and configures the exporter to send traces to the Collector. We use port `4317`, the default port for OTLP over gRPC.
-3. **Enables auto-instrumentation** for common Node.js libraries. We've turned off router instrumentation because Express instrumentation already covers those steps. Keeping both enabled would create duplicate spans.
+1. **Imports the three OTel packages** we just saw in `package.json`.
+   - The OTel SDK, the auto-instrumentation package, and the OTLP trace exporter.
+2. **Creates a Node SDK instance** and configures the exporter to send traces to the Collector.
+   - We use port `4317`, the default port for OTLP over gRPC.
+3. **Enables auto-instrumentation** for common Node.js libraries.
+   - We've turned off router instrumentation because Express instrumentation already covers those steps. Keeping both enabled would create duplicate spans.
 4. **Starts the SDK** so our app can generate and send traces.
 
 ## The start script
@@ -297,14 +302,12 @@ Back in `package.json`, we've added a custom `start` script:
 
 It does two things:
 
-1. **`OTEL_SERVICE_NAME=OTel4Beginners`** gives our service its name (red). 
-This tells the backend which service produced the telemetry. We set the name through an environment variable so we can configure it without changing our app code. 
-
-That's the name we saw when we started the app, and we'll use it to find our traces in Jaeger.
-
-2. **`--require ./instrumentation.js`** loads `instrumentation.js` before our app code runs (blue). 
-
-This order matters because the instrumentation needs to be ready when the app starts.
+1. **`OTEL_SERVICE_NAME=OTel4Beginners`** gives our service its name (red).
+   - This tells the backend which service produced the telemetry.
+   - We set the name through an environment variable so we can configure it without changing our app code.
+   - That's the name we saw when we started the app, and we'll use it to find our traces in Jaeger.
+2. **`--require ./instrumentation.js`** loads `instrumentation.js` before our app code runs (blue).
+   - This order matters because the instrumentation needs to be ready when the app starts.
 
 ## Collector configuration
 
@@ -336,7 +339,7 @@ service:
       exporters: [debug, otlp_grpc/jaeger]
 ```
 
-We're keeping this configuration bare-bones, with three main sections: receivers, exporters, and service pipelines.
+We're keeping this configuration bare-bones, so it only has receivers, exporters, and service pipelines.
 
 ### Receivers
 
@@ -630,7 +633,7 @@ service:
       exporters: [debug, otlp_grpc/jaeger]
 ```
 
-Our bare-bones configuration had receivers, exporters, and a `service` section. Here, we've added a `processors` section with two processors: the `resource` processor and the `attributes/traces` processor.
+Our bare-bones configuration had receivers, exporters, and a `service` section. Here, we've added a `processors` section with the `resource` and `attributes/traces` processors.
 
 ### The resource processor
 
@@ -778,7 +781,9 @@ The Collector runs processors in the order they're listed. For these two, the or
 
 Let's follow our traces through the pipeline.
 
-First, they come in through the OTLP receiver. From there, the `resource` processor adds our environment and removes the host and process details we don't need. Then, the `attributes/traces` processor takes care of the span attributes we want to remove.
+First, they come in through the OTLP receiver. From there, the `resource` processor adds our environment and removes the host and process details we don't need. 
+
+Then, the `attributes/traces` processor takes care of the span attributes we want to remove.
 
 Once that's done, both exporters get the processed traces. The `debug` exporter prints them to the terminal, and `otlp_grpc/jaeger` sends them to Jaeger in batches.
 
