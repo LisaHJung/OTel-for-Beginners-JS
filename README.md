@@ -67,7 +67,7 @@ Next, we'll build our metrics pipeline. We'll follow a similar process, but this
 
 <img width="1280" height="714" alt="Logs pipeline: logs flow from the Roll the Dice app to the OTel Collector, then to OpenSearch for storage and OpenSearch Dashboards for visualization" src="images/logs-pipeline.gif" />
 
-Finally, we'll build our logs pipeline. This time, we'll do something a little different and get our first taste of **manual instrumentation**, adding a few lines of code to our app instead of relying on automatic instrumentation. 
+Finally, we'll build our logs pipeline. This time, we'll do something a little different and get our first taste of **manual instrumentation**, adding a few lines of code to our app instead of relying on automatic instrumentation.
 
 The rest will look familiar. Our logs travel through the Collector to **OpenSearch**, where we'll store and explore them.
 
@@ -103,7 +103,7 @@ For each signal, we'll follow the same two steps. Let's use our traces pipeline 
 
 Before we dive into processing, we need to know what our data actually looks like.
 
-So first, we'll build a bare-bones setup with just the essentials to get our telemetry flowing. We'll instrument our app to generate traces, then configure the Collector to receive them and export them to Jaeger. 
+So first, we'll build a bare-bones setup with just the essentials to get our telemetry flowing. We'll instrument our app to generate traces, then configure the Collector to receive them and export them to Jaeger.
 
 From there, we'll explore our traces in Jaeger to see what they look like before any processing.
 
@@ -221,7 +221,7 @@ So our app is generating traces, and the Collector is receiving them. But how do
 
 The answer is **instrumentation**. Instrumentation enables our app to generate telemetry, like traces, metrics, and logs.
 
-OpenTelemetry gives us different ways to instrument an application. 
+OpenTelemetry gives us different ways to instrument an application.
 
 Here are the ones we'll use in this series:
 
@@ -376,8 +376,8 @@ exporters:
 Exporters define where the Collector sends telemetry data. In this setup, we're using two exporters.
 
 - The **`debug`** exporter prints our trace data to the Collector's output.
-  - With `verbosity` set to `detailed`, we can inspect individual spans and their details. 
-  - That's what we saw in the terminal running Docker when we refreshed the app. 
+  - With `verbosity` set to `detailed`, we can inspect individual spans and their details.
+  - That's what we saw in the terminal running Docker when we refreshed the app.
   - It helps us check what's flowing through the Collector during development and debugging.
 - The **`otlp_grpc/jaeger`** exporter sends our traces to Jaeger, where we can store and visualize them.
   - The `otlp_grpc` part identifies the exporter type, an OTLP exporter that sends data over gRPC. The name after the slash helps us tell exporters of the same type apart.
@@ -557,7 +557,7 @@ Go to http://localhost:16686, select `OTel4Beginners` in the **Service** dropdow
 
 > **Don't see new traces right away?** Give it a few seconds, then refresh. We'll see why when we get to [batching](#batching-in-the-exporter).
 
-We can't tell from this overview alone, but these traces are no longer raw. 
+We can't tell from this overview alone, but these traces are no longer raw.
 
 The Collector processed them before sending them to Jaeger. As we walk through the Collector configuration, we'll compare what a trace looked like before with what it looks like now.
 
@@ -781,7 +781,7 @@ The Collector runs processors in the order they're listed. For these two, the or
 
 Let's follow our traces through the pipeline.
 
-First, they come in through the OTLP receiver. From there, the `resource` processor adds our environment and removes the host and process details we don't need. 
+First, they come in through the OTLP receiver. From there, the `resource` processor adds our environment and removes the host and process details we don't need.
 
 Then, the `attributes/traces` processor takes care of the span attributes we want to remove.
 
@@ -790,3 +790,5 @@ Once that's done, both exporters get the processed traces. The `debug` exporter 
 And that's how our raw traces become processed traces, all without changing a single line of our app's code!
 
 In the next episode, we'll move on to our second signal, metrics. We'll instrument our app for metrics and build a bare-bones pipeline for them.
+
+When you're ready, head over to the [Metrics walkthrough](../metrics/README.md).
