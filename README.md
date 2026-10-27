@@ -790,3 +790,5 @@ Once that's done, both exporters get the processed traces. The `debug` exporter 
 And that's how our raw traces become processed traces, all without changing a single line of our app's code!
 
 In the next episode, we'll move on to our second signal, metrics. We'll instrument our app for metrics and build a bare-bones pipeline for them.
+
+When you're ready, head over to the [Metrics walkthrough](../metrics/README.md).
