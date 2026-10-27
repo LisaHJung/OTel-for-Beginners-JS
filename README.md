@@ -55,7 +55,9 @@ Together, these four pieces make up a telemetry pipeline. We'll build one for ea
 
 <img width="1280" height="714" alt="Traces pipeline: traces flow from the Roll the Dice app to the OTel Collector, then to Jaeger for storage and visualization" src="images/traces-pipeline.gif" />
 
-We'll start with traces. We'll use OpenTelemetry's automatic instrumentation to generate traces from our app. Then we'll configure the Collector to receive, process, and export them to **Jaeger**, where we'll store and explore them.
+We'll start with traces. We'll use OpenTelemetry's automatic instrumentation to generate traces from our app. 
+
+Then we'll configure the Collector to receive, process, and export them to **Jaeger**, where we'll store and explore them.
 
 **Metrics pipeline**
 
@@ -190,7 +192,9 @@ When the app starts, notice our service name, `OTel4Beginners`. We'll see where 
 
 In your browser, go to http://localhost:8080/rolldice.
 
-Each time we refresh the page, the app generates a random number between 1 and 6, just like rolling a die. It's intentionally simple, so we can focus on our telemetry instead of how the app works.
+Each time we refresh the page, the app generates a random number between 1 and 6, just like rolling a die. 
+
+It's intentionally simple, so we can focus on our telemetry instead of how the app works.
 
 <img width="1540" height="568" alt="Refreshing the Roll the Dice app at localhost:8080/rolldice, which shows a new random number from 1 to 6 each time" src="images/roll-the-dice.gif" />
 
@@ -231,7 +235,9 @@ Here are the ones we'll use in this series:
 | Code changes | None | Add code |
 | Captures | Libraries and runtime | Our app's custom logic |
 
-**Automatic instrumentation**, or auto-instrumentation for short, is ideal when you're getting started or when changing the app isn't an option. It captures telemetry from our app's libraries and runtime environment, giving us useful visibility with very little setup.
+**Automatic instrumentation**, or auto-instrumentation for short, is ideal when you're getting started or when changing the app isn't an option. 
+
+It captures telemetry from our app's libraries and runtime environment, giving us useful visibility with very little setup.
 
 **Manual instrumentation** gives us deeper insight. It lets us generate custom telemetry directly from our app logic, alongside the data collected by auto-instrumentation.
 
@@ -398,15 +404,11 @@ service:
 Defining receivers and exporters alone doesn't enable them. We need to include them in a pipeline, and that's where the `service` section comes in. It ties everything together by defining how data moves through the Collector.
 
 In our traces pipeline:
-- The **`otlp`** receiver accepts traces from our app.
+- The **`otlp`** receiver accepts traces from our app over gRPC and passes them to both exporters.
 - The **`debug`** exporter prints them to the terminal.
-- The **`otlp_grpc/jaeger`** exporter sends them to Jaeger.
+- The **`otlp_grpc/jaeger`** exporter sends them to Jaeger, where we can store and visualize them.
 
-**Putting it all together**
-
-<img width="1280" height="714" alt="Collector configuration: the Roll the Dice app sends traces to the Collector's otlp receiver over gRPC. Inside the traces pipeline, the receiver passes them to both the debug exporter, which prints them to the terminal, and the otlp_grpc/jaeger exporter, which sends them to Jaeger to store and visualize" src="images/collector-configuration.gif" />
-
-Our app sends traces over gRPC to the Collector's OTLP receiver. Inside our traces pipeline, the receiver passes them to both exporters. The `debug` exporter prints them to the terminal, while `otlp_grpc/jaeger` sends them to Jaeger, where we can store and visualize them.
+<img width="1280" height="714" alt="Traces pipeline: the Roll the Dice app sends traces to the Collector's otlp receiver over gRPC. Inside the traces pipeline, the receiver passes them to both the debug exporter, which prints them to the terminal, and the otlp_grpc/jaeger exporter, which sends them to Jaeger to store and visualize" src="images/collector-configuration.gif" />
 
 ## Explore our traces in Jaeger
 
@@ -487,7 +489,9 @@ And that's our first pipeline up and running! In the next episode, we'll add pro
 
 # Episode 4 - Processing Traces: OpenTelemetry Collector in Action
 
-In the last episode, we built our first pipeline and explored our traces in Jaeger. Along the way, we spotted [span attributes](#tags-span-attributes) and [resource attributes](#process-resource-attributes) we don't need. We also noticed our traces were missing the environment they came from.
+In the last episode, we built our first pipeline and explored our traces in Jaeger. 
+
+Along the way, we spotted [span attributes](#tags-span-attributes) and [resource attributes](#process-resource-attributes) we don't need. We also noticed our traces were missing the environment they came from.
 
 In this episode, we'll fix that using **processors**.
 
@@ -771,21 +775,18 @@ service:
       exporters: [debug, otlp_grpc/jaeger]
 ```
 
-As we saw in the last episode, the `service` section is where everything comes together. Our traces pipeline connects our receiver, our two processors, and our exporters.
+As we saw in the last episode, the `service` section is where everything comes together. In our traces pipeline:
+- The **`otlp`** receiver accepts traces from our app.
+- The **`resource`** processor adds our environment and removes the host and process details we don't need.
+- The **`attributes/traces`** processor removes client and network details from our spans.
+- The **`debug`** exporter prints the processed traces to the terminal.
+- The **`otlp_grpc/jaeger`** exporter groups them with its sending queue and sends them to Jaeger.
 
-The Collector runs processors in the order they're listed. For these two, the order doesn't matter since they change different attributes. Later in the series, we'll see a pipeline where it does.
+The Collector runs processors in the order they're listed. 
 
-**Putting it all together**
+For these two, the order doesn't matter since they change different attributes. Later in the series, we'll see a pipeline where it does.
 
-<img width="1280" height="714" alt="Putting it all together: the Roll the Dice app sends traces to the Collector's otlp receiver. The resource processor adds the environment and drops host and process details, then the attributes/traces processor drops client and network details. The processed traces go to the debug exporter, which prints them to the terminal, and the otlp_grpc/jaeger exporter, which groups them with its sending queue and sends them to Jaeger" src="images/putting-it-all-together-processors.gif" />
-
-Let's follow our traces through the pipeline.
-
-First, they come in through the OTLP receiver. From there, the `resource` processor adds our environment and removes the host and process details we don't need.
-
-Then, the `attributes/traces` processor takes care of the span attributes we want to remove.
-
-Once that's done, both exporters get the processed traces. The `debug` exporter prints them to the terminal, and `otlp_grpc/jaeger` sends them to Jaeger in batches.
+<img width="1280" height="714" alt="Traces pipeline with processors: the Roll the Dice app sends traces to the Collector's otlp receiver. The resource processor adds the environment and drops host and process details, then the attributes/traces processor drops client and network details. The processed traces go to the debug exporter, which prints them to the terminal, and the otlp_grpc/jaeger exporter, which groups them with its sending queue and sends them to Jaeger" src="images/putting-it-all-together-processors.gif" />
 
 And that's how our raw traces become processed traces, all without changing a single line of our app's code!
 
