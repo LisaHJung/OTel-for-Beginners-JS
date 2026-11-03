@@ -395,11 +395,11 @@ Labels describe the requests themselves. **Resource attributes** describe someth
 
 We first met them with [traces](../traces/README.md#process-resource-attributes). They tell us about the service, host, and process behind our telemetry.
 
-Most of them don't show up as labels in Prometheus, so we'll find them in the Collector's debug output instead. In the terminal running Docker, search for `Resource attributes`.
+Most of them don't show up as labels in Prometheus, so we'll find them in the Collector's debug output instead. In the terminal running Docker, search for `ResourceMetrics`. The resource attributes for our metrics are listed right below it.
 
 The output moves fast, so here's a screenshot to follow along with:
 
-<img width="1016" height="1024" alt="Collector debug output in the Docker terminal, with the Resource attributes block for our metrics highlighted and host and process values blurred" src="images/collector-resource-attributes.png" />
+<img width="1024" height="912" alt="Collector debug output in the Docker terminal, with the Resource attributes block for our metrics highlighted and host and process values blurred" src="images/collector-resource-attributes.png" />
 
 A few of these are genuinely useful. `service.name`, for example, tells us which service sent the data.
 
