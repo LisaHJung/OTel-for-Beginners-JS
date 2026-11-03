@@ -377,7 +377,7 @@ The number of time series we have is called **cardinality**, so the shop's cardi
 
 Now say we add each customer's name as a label. 
 
-The single count for large oat lattes would break into a separate count for every customer who ordered one. Each new customer adds another time series, and that's how one extra label can drive cardinality up.
+The single count for large oat lattes would break into a separate count for every customer who ordered one. Each new customer adds another time series, and that's how one label with lots of different values can drive cardinality up.
 
 Our app follows the same rule. 
 
