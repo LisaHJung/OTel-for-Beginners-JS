@@ -399,7 +399,7 @@ Most of them don't show up as labels in Prometheus, so we'll find them in the Co
 
 The output moves fast, so here's a screenshot to follow along with:
 
-<img width="2049" height="2059" alt="Collector debug output in the Docker terminal, with the Resource attributes block for our metrics highlighted and host and process values blurred" src="images/collector-resource-attributes.png" />
+<img width="1016" height="1024" alt="Collector debug output in the Docker terminal, with the Resource attributes block for our metrics highlighted and host and process values blurred" src="images/collector-resource-attributes.png" />
 
 A few of these are genuinely useful. `service.name`, for example, tells us which service sent the data.
 
