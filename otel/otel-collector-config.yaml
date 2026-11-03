@@ -44,7 +44,7 @@ processors:
       - key: network.peer.port
         action: delete
 
-  # Filter out unwanted metrics to reduce cardinality
+  # Drop metrics we don't need to reduce telemetry volume
   filter/exclude_metrics:
     error_mode: ignore
     metrics:
