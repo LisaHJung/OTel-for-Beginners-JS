@@ -257,7 +257,7 @@ In our metrics pipeline:
 - The **`debug`** exporter prints them to the terminal.
 - The **`prometheus`** exporter exposes them on port `8889`, ready for Prometheus to scrape.
 
-<img width="1280" height="714" alt="Metrics pipeline: every 10 seconds, the Roll the Dice app sends metrics to the Collector's otlp receiver. Inside the metrics pipeline, the receiver passes them to the debug exporter, which prints them to the terminal, and the prometheus exporter on port 8889, which Prometheus scrapes to store and visualize them" src="images/metrics-collector-configuration.gif" />
+<img width="1280" height="706" alt="Metrics pipeline: every 10 seconds, the Roll the Dice app sends metrics to the Collector's otlp receiver. Inside the metrics pipeline, the receiver passes them to the debug exporter, which prints them to the terminal, and the prometheus exporter on port 8889, which Prometheus scrapes to store and visualize them" src="images/metrics-collector-configuration.gif" />
 
 That's the path our metrics take. But what can they actually tell us about our app?
 
