@@ -1,6 +1,6 @@
 services:
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:latest@sha256:ab6f1a1f0fb49ea08bcd19f6b84f6081d0d44b364b6de148e1798eb5816bacac
     ports:
       - "16686:16686"   # Jaeger UI
       - "14250:14250"   # Jaeger grpc (optional)
@@ -9,7 +9,7 @@ services:
       COLLECTOR_OTLP_GRPC_PORT: 4317
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:latest@sha256:e4254400b85610324913f0dc4acf92603d9984e7519414c5a12811aa6146acc3
     volumes:
       - ./otel/prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
@@ -18,7 +18,7 @@ services:
       - otel-collector
 
   opensearch:
-    image: opensearchproject/opensearch:latest
+    image: opensearchproject/opensearch:latest@sha256:3b55f6b6249cfdb92b52ee59adc8a266203ba9ef9f5d82544fad6f1af2f3609e
     environment:
       - discovery.type=single-node
       - DISABLE_SECURITY_PLUGIN=true        # no TLS/auth for local learning
@@ -29,7 +29,7 @@ services:
       - "9600:9600"     # Performance Analyzer
 
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:latest
+    image: opensearchproject/opensearch-dashboards:latest@sha256:256d4cea5928868ac09bca642a0ac8285a2b7e4b7fdd45c4ec06e75a5cf3184c
     environment:
       - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
@@ -39,7 +39,7 @@ services:
       - opensearch
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:latest@sha256:7f22d2a6748110ffb6a59bc0df448bccbf501cdb667d610ede4c61d3863d5849
     volumes:
       - ./otel/otel-collector-config.yaml:/etc/otelcol/config.yaml
     command: ["--config", "/etc/otelcol/config.yaml"]

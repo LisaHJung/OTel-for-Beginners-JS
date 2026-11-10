@@ -1,5 +1,5 @@
 const express = require('express');
-const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
+const { logs, SeverityNumber } = require('@opentelemetry/api');
 
 const PORT = parseInt(process.env.PORT || '8080');
 const app = express();
