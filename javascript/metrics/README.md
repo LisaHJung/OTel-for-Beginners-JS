@@ -342,7 +342,7 @@ Splitting things up like this lets us ask sharper questions. Here, large oat lat
 
 Our app groups its requests in a similar way. Instead of drink, size, and milk, it uses details like the HTTP method and status code. Those are the details inside the curly braces.
 
-They work like the label on a coffee cup that describes the order, and in metrics, they're called **labels** too. Every unique combination of labels gets a row, and a count, of its own.
+They work like the label on a coffee cup that describes the order, and in Prometheus, they're called **labels** too. Every unique combination of labels gets a row, and a count, of its own.
 
 <img width="2049" height="1150" alt="The three Prometheus rows with the http_response_status_code label highlighted on each: 404 with a count of 4, 200 with a count of 229, and 304 with a count of 11" src="images/prometheus-status-codes.png" />
 
@@ -395,7 +395,7 @@ Labels describe the requests themselves. **Resource attributes** describe someth
 
 We first met them with [traces](../traces/README.md#process-resource-attributes). They tell us about the service, host, and process behind our telemetry.
 
-Most of them don't show up as labels in Prometheus, so we'll find them in the Collector's debug output instead. In the terminal running Docker, search for `ResourceMetrics`. The resource attributes for our metrics are listed right below it.
+Most of them don't show up as labels on our metrics in Prometheus, so we'll find them in the Collector's debug output instead. In the terminal running Docker, search for `ResourceMetrics`. The resource attributes for our metrics are listed right below it.
 
 The output moves fast, so here's a screenshot to follow along with:
 
@@ -639,7 +639,7 @@ Then, it uses the `delete` action to remove the host and process attributes we s
 
 **Before and after**
 
-Most resource attributes don't show up as labels in Prometheus, so like last episode, we'll check them in the Collector's output.
+Most resource attributes don't show up as labels on our metrics in Prometheus, so like last episode, we'll check them in the Collector's output.
 
 In the terminal running Docker, search for `ResourceMetrics`. The resource attributes for our metrics are listed right below it.
 
@@ -750,7 +750,7 @@ global:
 
 The `scrape_interval` tells Prometheus to collect our metrics from the Collector every 15 seconds.
 
-Since Prometheus decides when to collect the metrics, the Collector isn't sending anything out, so there's nothing to batch.
+Since Prometheus decides when to collect the metrics, the Collector doesn't push anything, so there's nothing to batch on the way out.
 
 ### Service
 
