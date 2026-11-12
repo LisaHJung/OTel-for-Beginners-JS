@@ -1,15 +1,10 @@
 # OpenTelemetry for Beginners - The JavaScript Journey (Logs)
 
-Getting started with OpenTelemetry can feel overwhelming, but this beginner series for JavaScript developers will guide you step by step. This guide covers the **logs** signal and builds directly on the traces and metrics guides.
+Getting started with OpenTelemetry can feel overwhelming, but this beginner series for JavaScript developers will guide you step by step.
 
-> **New to the series?** Start with the [Traces walkthrough](../traces/README.md), which covers Episode 1 (_What is OpenTelemetry?_), the pipeline overview, and setting up your learning environment, then the [Metrics walkthrough](../metrics/README.md). This logs guide picks up from there and assumes you've met the same prerequisites and are comfortable running the Roll the Dice app.
+This guide covers the **logs** signal and builds on everything we set up in the [Traces walkthrough](../traces/README.md) and the [Metrics walkthrough](../metrics/README.md).
 
-## Prerequisites
-
-Same as the earlier guides. Before getting started, make sure you have installed:
-- [Node.js](https://nodejs.org/en/download/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+> **New to the series?** Start with the [Traces walkthrough](../traces/README.md). It covers what OpenTelemetry is, the pipelines we'll build, the prerequisites, and how to clone the repo. Then continue with the [Metrics walkthrough](../metrics/README.md). This guide assumes you've completed those steps and can run the Roll the Dice app.
 
 ## Resources
 - [OpenTelemetry documentation](https://opentelemetry.io/docs/)
@@ -24,113 +19,126 @@ Same as the earlier guides. Before getting started, make sure you have installed
   - [OpenTelemetry for Beginners series - The JavaScript Journey](https://youtu.be/iEEIabOha8U?feature=shared)
 - [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/)
 
-# Episode 8 - Logs Instrumentation and Bare-Bones OTel Collector Configuration
+# Episode 7 - Log Instrumentation & Bare-Bones Collector Configuration
 
-In the trace and metric episodes, we instrumented our app, sent telemetry through the OpenTelemetry Collector, and visualized it in a backend.
+<img width="1280" height="716" alt="What we've built so far: traces and metrics flow from the instrumented Roll the Dice app to the OTel Collector, which receives, processes, and exports them to Jaeger and Prometheus for storage and visualization" src="images/traces-and-metrics.gif" />
 
-<img width="1280" height="716" alt="Traces and metrics pipeline we've built so far" src="images/traces-and-metrics.gif" />
+So far, we've covered two signals, traces and metrics. For each one, we instrumented our app, set up the OTel Collector to receive, process, and export the data, and then explored it in a backend.
 
-Those two signals, traces and metrics, are only part of the picture. The third is **logs**.
+Now it's time for our third signal, **logs**.
 
-If you've ever debugged an app by reading through its output, you've already worked with logs. 
+## What is a log?
 
-They give us a record of individual events, helping us understand what happened and when. That focus on individual events is what sets logs apart from the other signals. 
+<img width="1024" height="575" alt="What is a log: three log records listed down a timeline, each with a timestamp, an INFO severity, and a body like Rolled a dice and got 6. The middle record is highlighted, with labels showing that the timestamp is when it happened, the severity is how serious it is, and the body is what happened" src="images/what-is-a-log.jpg" />
 
-A metric tells us _how many_ requests came in or _how long_ they took, and a trace tells us the path of a single request, but a log captures _what happened_ at a specific moment.
+**Logs** are records of events that happen in our app. If you've ever debugged an app by reading through its output, you've already worked with logs.
 
-Just like we did with traces and metrics, we're going to start simple. 
+Each row in this example is a single log, called a **log record**. It describes one event at a specific moment.
 
-We'll configure a bare-bones OTel Collector to receive logs and export them to OpenSearch. We'll use this setup to explore our logs as they are, before we start processing them. 
+Let's take a closer look at one of them:
+- The **timestamp** tells us when it happened.
+- The **severity** tells us how serious it is.
+- The **body** tells us what happened, in plain text.
 
-<img width="1280" height="716" alt="Bare-bones logs pipeline to OpenSearch" src="images/logs-pipeline.gif" />
+Follow the timestamps, and you can see what our app did, one event at a time.
 
-Then, in the next episode, we'll add processors and see how we can transform our logs before they're exported. Let's get everything set up.
+This is what sets logs apart from the other two signals.
 
-## Run the learning environment locally
+A **trace** follows the path of a single request. **Metrics** give us the bigger picture across all requests. **Logs** tell us exactly what happened at a specific moment.
 
-If you've been following along from the metrics episode, you should already have two terminals open. 
+## The bare-bones setup
 
-One running the Roll the Dice app and another running Docker. We'll reuse both. 
+<img width="1280" height="717" alt="Bare-bones logs pipeline: logs flow from the Roll the Dice app to the OTel Collector, which receives and exports them to OpenSearch for storage and visualization" src="images/bare-bones-logs-pipeline.gif" />
 
-In each terminal, stop what's running, move into the `logs/bare-bones-setup` folder, and start it back up. Make sure Docker Desktop is open and running before you bring the stack up.
+As with traces and metrics, we're starting small.
 
-**Terminal 1 - Roll the Dice app**
+We'll configure a bare-bones OTel Collector to receive logs and export them to **OpenSearch**, the backend we'll use to store and search our logs. We'll explore them in **OpenSearch Dashboards**.
+
+This setup lets us see our logs exactly as our app sends them. Once we know what they look like, the next episode adds processors to transform them before they're exported.
+
+## Run the learning environment
+
+If you've been following along, you should still have two terminals open. One for the Roll the Dice app and one for Docker.
+
+In each one, we'll stop what's running and move to the `logs/bare-bones-setup` folder. It contains everything this episode needs, including the instrumentation, the Collector configuration, and a Docker setup that now includes OpenSearch and OpenSearch Dashboards.
+
+**Terminal 1: restart the app**
+
+> First, press **Ctrl + C** to stop the running app.
+
 ```bash
-# stop the running app
-Ctrl + C
-# move to the logs bare-bones folder
 cd ../../logs/bare-bones-setup
-# install this folder's dependencies, then start the app
 npm install
 npm start
 ```
 
-**Terminal 2 - Docker (Collector + Jaeger + Prometheus + OpenSearch)**
+**Terminal 2: restart the stack, now with OpenSearch**
+
+> First, press **Ctrl + C** to stop the running Docker Compose session.
+
 ```bash
-# stop and remove the metrics stack
 docker compose down
-# move to the logs bare-bones folder
 cd ../../logs/bare-bones-setup
-# bring the stack up (bare-bones logs setup, adds OpenSearch)
 docker compose up
 ```
 
-This bare-bones setup runs the Collector, Jaeger, Prometheus, OpenSearch, and OpenSearch Dashboards side by side with our app. For logs, OpenSearch is our backend for storing and searching, and OpenSearch Dashboards is where we'll explore them.
+> **Starting fresh?** From the directory where you cloned the repo, run `cd opentelemetry-for-beginners/javascript/logs/bare-bones-setup` in each terminal instead. Then run `npm install` and `npm start` in one, and `docker compose up` in the other.
 
-Once everything is running, we're ready to generate some logs.
+**Generate some logs**
 
-**Verify the app is running**
+Once everything is running, head back to the Roll the Dice app at http://localhost:8080/rolldice and refresh the page a few times. Every roll creates a log record.
 
-In your browser, go to the following URL: http://localhost:8080/rolldice
+<img width="1540" height="568" alt="Refreshing the Roll the Dice app at localhost:8080/rolldice, which shows a new random number from 1 to 6 each time" src="images/roll-the-dice.gif" />
 
-Refresh the page multiple times. This app will generate a random number from 1–6, just as if you were rolling a die. Every roll also emits a log record.
+While you refresh, keep an eye on the terminal running Docker. That's where the Collector prints the logs it receives.
 
-![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
+<img width="2049" height="1828" alt="Collector debug output in the Docker terminal, showing log records one after another. Each one has a timestamp, a severity of INFO, a body like Rolled a dice and got 4, a dice.value attribute, and a trace ID and span ID" src="images/collector-debug-logs.png" />
 
-**See the logs flow through the Collector**
+Our logs are batched before they're sent, so it may take a moment for them to appear. Once they do, they're easy to miss, because each log takes up much less space than the metrics output.
 
-Take a look at the terminal that is running Docker. You'll see logs flowing through the Collector.
+**Filter the Collector output**
 
-<img width="1576" height="1123" alt="image" src="https://github.com/user-attachments/assets/be8f0e91-3bd7-4a8d-93c5-aa69a60db739" />
+To make our logs easier to spot, we can filter the Collector output down to just the log records.
 
-One thing to keep in mind. Unlike traces, our logs are **batched** before they're sent, so they won't appear the instant you roll. Give it a few seconds, then look for them.
+Our other two terminals are busy running the app and Docker, so open a third terminal, move into the same `logs/bare-bones-setup` folder, and run this command.
 
-Because each log is small compared to the metrics output, it's easy to scroll past. To make them easy to spot, you can run this command to filter the Collector's output down to just the log records.
+**Terminal 3: show only the log records**
 
-Our other two terminals are busy running the app and Docker, so open a third terminal and run the following command.
-
-**Terminal 3 - Filtered Collector output**
-```
-# in a new terminal, within the logs/bare-bones-setup folder
+```bash
 docker compose logs otel-collector -f | grep --line-buffered -A8 "LogRecord #"
 ```
 
-<img width="1056" height="930" alt="image" src="https://github.com/user-attachments/assets/cd90da28-b87b-49e8-bcbc-80dfc3ef1cbc" />
+Roll the dice a few more times, and each new log record shows up on its own.
 
-Since we know our app is generating logs and the Collector is receiving them, let's head into the code and see how those logs are being generated.
+<img width="2049" height="1832" alt="Filtered Collector output in a third terminal, showing only log records separated by dashes. Each record shows its timestamps, severity, body, dice.value attribute, and trace ID" src="images/filtered-log-records.png" />
 
-> **Quick heads-up.** To keep things easy to follow, the code snippets below only show the logs-related bits. Your actual files have more going on, the traces and metrics setup from the earlier episodes (in `instrumentation.js` and the Collector config) and the rest of the app's own code (in `app.js`), we've just trimmed it out here so it's easier to focus on logs.
+> **Tip:** Run `docker compose` commands from the `logs/bare-bones-setup` folder. From any other folder, Docker Compose won't find this stack's containers.
 
-## The packages (package.json)
+Our app is creating logs, and the Collector is receiving them. Next, let's dig into the code that makes it happen.
 
-For our logs example, we've added three OpenTelemetry packages on top of what the earlier episodes used:
+> **Quick heads-up.** To keep things easy to follow, some of the code snippets below only show the logs-related bits. Your actual files also include the traces and metrics setup from the earlier episodes, in `instrumentation.js` and the Collector config. We've just trimmed it out here so it's easier to focus on logs.
 
-<img width="1606" height="1088" alt="image" src="https://github.com/user-attachments/assets/3f24a0aa-76d9-44fe-8fa2-2cf87fa4d30c" />
+## The OTel packages
 
-- `@opentelemetry/api-logs` is the **Logs API**. It lets our app create log records in our code.
-- `@opentelemetry/sdk-logs` is the **Logs SDK**. It collects those records and prepares them for export.
-- `@opentelemetry/exporter-logs-otlp-grpc` is the **OTLP log exporter**, which sends our log records to the Collector over gRPC.
+Open the `javascript/logs/bare-bones-setup` folder in your code editor, then open `package.json`.
 
-Together, these let our app create logs and send them to the Collector.
+<img width="2049" height="1409" alt="package.json with the @opentelemetry/api, @opentelemetry/exporter-logs-otlp-grpc, and @opentelemetry/sdk-logs dependencies highlighted" src="images/package-json-logs-packages.png" />
 
-Now that we’ve covered the packages, let’s see how we use them in our app. 
+You'll recognize most of these packages from the earlier episodes. Three are new, and all three are there for logs:
+
+- **`@opentelemetry/api`** is the OpenTelemetry API. It lets our app create log records in our code.
+- **`@opentelemetry/sdk-logs`** is the Logs SDK. It collects those records and prepares them for export.
+- **`@opentelemetry/exporter-logs-otlp-grpc`** is the OTLP log exporter. It sends those records to the Collector over gRPC.
+
+> **Why didn't we need the API before?** In the traces and metrics episodes, auto-instrumentation did all the work, and our own code never called OpenTelemetry directly. The API was still installed, because the SDK and auto-instrumentation packages depend on it, but we didn't have to list it ourselves. Logs is the first time our own code uses the API, so we add it to `package.json`. The same package also includes the APIs for traces and metrics.
+
+To see how these fit together, open `instrumentation.js`.
 
 ## instrumentation.js
 
-This file prepares our app to generate logs and send them to the local Collector. It should look familiar from the traces and metrics setup, with the logs pieces added:
+This file should look familiar from our traces and metrics setup, with the logs pieces added.
 
-**instrumentation.js**
-```
+```js
 const opentelemetry = require('@opentelemetry/sdk-node');
 
 const {
@@ -148,36 +156,47 @@ const {
 const sdk = new opentelemetry.NodeSDK({
   // ...trace and metric configuration from the earlier episodes...
   logRecordProcessors: [
-    new BatchLogRecordProcessor(
-      new OTLPLogExporter({
+    new BatchLogRecordProcessor({
+      exporter: new OTLPLogExporter({
         url: 'http://localhost:4317',
       }),
-    ),
+    }),
   ],
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: [
+    getNodeAutoInstrumentations({
+      '@opentelemetry/instrumentation-router': { enabled: false },
+    }),
+  ],
 });
 
 sdk.start();
 ```
 
-At a high level, `instrumentation.js` does the same four things it did for metrics, with one addition for logs:
+It does four main things:
 
-1. Import the OpenTelemetry SDK and the auto-instrumentation module, along with the OTLP log exporter and the batch log record processor.
-2. Create a new `NodeSDK` instance.
-3. For logs, add that **batch log record processor**, wrapping the OTLP log exporter. It groups our log records together before sending them to the Collector listening on port `4317`, the standard OTLP endpoint. That's why our logs show up in the debug output in small batches, a few seconds after we roll.
-4. Start the SDK.
+1. **Imports the packages we need.**
+   - Along with the OTel SDK and auto-instrumentation, we bring in the OTLP log exporter and the batch log record processor from the Logs SDK.
+2. **Creates a Node SDK instance.**
+3. **Exports our logs** to the Collector.
+   - This is what's new. We add the batch log record processor and give it the log exporter to use.
+   - The processor groups our logs into batches, and the exporter sends them to the Collector on port `4317`, the same port our traces and metrics use.
+   - That's why our logs showed up in small groups after a short delay.
+4. **Starts the SDK** so our app can generate and send logs.
+
+> **Not the same as the Collector's processors and exporters.** The batch log record processor and the log exporter both run inside our app. They're separate from the processors and exporters we configure in the Collector.
+
+The biggest change this time isn't in our setup files. It's in our app code.
 
 ## app.js
 
-Up to now, OpenTelemetry has auto-generated traces and metrics, without us changing a line of application code. That's **automatic instrumentation**. 
+So far, we've relied on auto-instrumentation, meaning we haven't had to make any changes to our application code.
 
-Logs are the exception. Because our app has no logging library for OpenTelemetry to hook into automatically, we create the log record ourselves with the Logs API. 
+With logs, that changes. Our app doesn't use a logging library that OTel can instrument automatically.
 
-This is **manual instrumentation**:
+So instead, we create our logs directly with the OpenTelemetry Logs API, which comes from the API package we saw in `package.json`.
 
-**app.js**
-```
-const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
+```js
+const { logs, SeverityNumber } = require('@opentelemetry/api');
 
 const logger = logs.getLogger('rolldice-app');
 
@@ -195,21 +214,23 @@ app.get('/rolldice', (req, res) => {
 });
 ```
 
-Every time we roll the dice, we call the logger and create a log record. That record carries:
-- a **severity** of `INFO`, which marks this as a routine event,
-- a **body**, the message `Rolled a dice and got <value>`, and
-- a `dice.value` **attribute**, which pulls out the specific number we rolled.
+Each roll calls `logger.emit()`, which creates a log record with three pieces of information:
+- a **severity** of `INFO`, marking the roll as a routine event.
+- a **body**, like `Rolled a dice and got 4`. This is the human-readable message we'll see in OpenSearch.
+- a **`dice.value` attribute** that holds the rolled number in a field of its own, which makes it easy to search and filter by.
 
-Notice that every roll is emitted at that same `INFO` severity, whether we roll a one or a six. We'll put that severity to work in the next episode.
+Right now, a one and a six get the same `INFO` severity. Keep that in mind, because it comes back in the next episode.
 
-This is our first taste of **manual instrumentation**. We write the code ourselves to record an event that matters to us, one auto-instrumentation couldn't capture on its own. 
+Writing telemetry in our own code like this is called **manual instrumentation**. It's how we capture the events that matter to our app when auto-instrumentation can't.
 
-Now that we've seen how our app generates logs, let's look at how the Collector receives and exports them.
+With our logs created and on their way, let's follow them into the Collector.
 
-## OpenTelemetry Collector Configuration
+## Collector configuration
 
-**otel/otel-collector-config.yaml**
-```
+In your code editor, open `otel/otel-collector-config.yaml`.
+
+```yaml
+# otel/otel-collector-config.yaml
 receivers:
   otlp:
     protocols:
@@ -222,7 +243,7 @@ exporters:
   debug:
     verbosity: detailed
 
-  otlp/jaeger:
+  otlp_grpc/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
@@ -239,7 +260,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [debug, otlp/jaeger]
+      exporters: [debug, otlp_grpc/jaeger]
     metrics:
       receivers: [otlp]
       exporters: [debug, prometheus]
@@ -248,64 +269,83 @@ service:
       exporters: [debug, opensearch]
 ```
 
-Just like before, our configuration has three main parts. Receivers, exporters, and service pipelines. 
+We're keeping this configuration bare-bones, so it only has receivers, exporters, and service pipelines. The processors and exporter batching from the earlier processing episodes come back in the next episode.
 
-Our receiver hasn't changed, so let's start with the exporter, then we'll take a look at the logs pipeline.
+Our `otlp` receiver is the same one from earlier, so we'll skip ahead to the exporters and then the logs pipeline.
 
-**Exporters define where the Collector sends telemetry.** 
+### Exporters
 
-For logs, we use two:
-
-**otel/otel-collector-config.yaml**
-```
+```yaml
+# otel/otel-collector-config.yaml
 exporters:
   debug:
     verbosity: detailed
+
+  # ...otlp_grpc/jaeger and prometheus exporters from the earlier episodes...
 
   opensearch:
     http:
       endpoint: http://opensearch:9200
     logs_index: otel-logs
 ```
-- The **`debug` exporter** prints our logs to the Collector's logs so we can verify they're flowing through. 
-- The **`opensearch` exporter** is where things change. 
 
-For traces we exported to Jaeger, and for metrics to Prometheus. 
+Exporters decide where the Collector sends our telemetry. For logs, we're using two of them.
 
-This time we send our logs to **OpenSearch**, our backend for storing and searching logs. It writes them to an index called `otel-logs`. We'll explain what an index is shortly.
+- The **`debug`** exporter is the same one we used for traces and metrics. 
+  - This time, it prints our logs to the Collector's output, so we can verify they're making it through.
+- The **`opensearch`** exporter is the new addition.
+  - For traces, we exported to Jaeger. For metrics, we exported to Prometheus. This time, we're sending our logs to OpenSearch, our backend for storing and searching logs.
+  - It writes our logs to an index called `otel-logs`. We'll cover what an index is in just a bit.
+  - OpenSearch Dashboards then reads from that index, so we can browse our logs.
 
-**The `service` component defines how data moves through the Collector.**
+### Service
 
-**otel/otel-collector-config.yaml**
-```
+```yaml
+# otel/otel-collector-config.yaml
 service:
   pipelines:
     logs:
       receivers: [otlp]
       exporters: [debug, opensearch]
 ```
-- The **`otlp` receiver** accepts logs from our app.
-- The **`debug` exporter** prints them to the terminal.
-- The **`opensearch` exporter** sends them to OpenSearch for storage.
 
-Together, these components define the path our logs take through the Collector.
+Defining a receiver or exporter isn't enough to turn it on. A component only runs once we list it in a pipeline in the `service` section, which is where we wire up how data moves through the Collector.
 
-Now that everything is configured, let’s see it in action.
+Let's follow a log through our logs pipeline.
 
-## Exploring logs in OpenSearch Dashboards
+<img width="1280" height="706" alt="Logs pipeline: every time we roll the dice, app.js creates a log record and instrumentation.js sends it to the Collector's otlp receiver. Inside the logs pipeline, the receiver passes each log to both exporters at the same time. The debug exporter prints it to the terminal as Collector output in Docker, and the opensearch exporter sends it to OpenSearch to store and visualize" src="images/logs-collector-configuration.gif" />
 
-Open your browser and go to `http://localhost:5601` to reach OpenSearch Dashboards, where we'll explore our logs. 
+- A dice roll creates a log record, and our app sends it to the Collector.
+- The **`otlp`** receiver accepts it and passes it to both exporters at the same time.
+- The **`debug`** exporter prints it out, which is what we saw scrolling by in the Docker terminal.
+- The **`opensearch`** exporter stores it in OpenSearch, ready for us to search.
 
-<img width="2039" height="968" alt="image" src="https://github.com/user-attachments/assets/c6e2790e-3e8a-4a11-bee1-2811daefa14e" />
+That's the whole trip from our app to OpenSearch. Let's go find our logs!
 
-Before we can see them, there’s one thing we need to set up.
+## Explore our logs in OpenSearch Dashboards
 
-**What's an index?**
+**1. Open OpenSearch Dashboards**
 
-Back in the Collector config, the `opensearch` exporter sets `logs_index` to `otel-logs`.
+Go to http://localhost:5601.
 
-**otel/otel-collector-config.yaml**
+The first time you open it, you might see a pop-up about a new Discover experience. 
+
+If you do, click **Dismiss**. Then, on the welcome screen, click **Explore on my own**.
+
+<img width="2049" height="1250" alt="The Welcome to OpenSearch Dashboards screen, with an Add data button and an Explore on my own link" src="images/opensearch-dashboards-welcome.png" />
+
+You'll land on the home page.
+
+<img width="2049" height="1093" alt="The OpenSearch Dashboards home page, with Add data, Manage, and Dev tools links in the top-right corner" src="images/opensearch-dashboards-home.png" />
+
+Our logs are already stored in OpenSearch, but we need one quick setup step before we can browse them.
+
+### What's an index?
+
+Remember the `logs_index` setting in our Collector config?
+
 ```yaml
+# otel/otel-collector-config.yaml
 exporters:
   opensearch:
     http:
@@ -313,87 +353,140 @@ exporters:
     logs_index: otel-logs
 ```
 
-That tells OpenSearch to group our records together under that name, and that grouping is what OpenSearch calls an **index**. 
+Because `logs_index` is set to `otel-logs`, the Collector stores all our logs together under that name. OpenSearch calls this an **index**.
 
-Think of it like a folder for related data that keeps everything organized and easy to find.
+You can picture an index as a folder that holds related data, so it's easy to find later.
 
-**What's an index pattern?**
+OpenSearch can hold many indexes, so OpenSearch Dashboards needs us to point it at the one we care about.
 
-Our data is already in OpenSearch, but Dashboards still needs to know which index we want to explore. That's what an **index pattern** is for, a saved pointer that tells Dashboards where to look. We'll create one that points to `otel-logs`.
+### What's an index pattern?
 
-**Create the index pattern**
-1. From the OpenSearch Dashboards home page, click **Manage** in the top-right corner.
-   <img width="2037" height="971" alt="image" src="https://github.com/user-attachments/assets/0046add1-05b3-4954-a79c-4d5a334189ab" />
+That's the job of an **index pattern**. It tells OpenSearch Dashboards which indexes to read from. We'll create one for `otel-logs`.
 
-2. In the menu on the left, select **Index patterns**, then click **Create index pattern**.
-   <img width="2315" height="681" alt="image" src="https://github.com/user-attachments/assets/06535b6d-ec20-429f-9825-a57e782a3f64" />
-   <img width="2103" height="905" alt="image" src="https://github.com/user-attachments/assets/1e1b35a1-d8c2-4378-8b31-00a0d49cd37d" />
+**2. Create the index pattern**
 
-3. For the index pattern name, enter `otel-logs`. You'll see it match the `otel-logs` index below. Click **Next step**.
-   <img width="2070" height="1118" alt="image" src="https://github.com/user-attachments/assets/5c63ca5d-4578-4bbb-b6a8-59efb747724e" />
+1. From the home page, click **Manage** in the top-right corner.
 
-4. Open the time field dropdown and select `@timestamp`, then click **Create index pattern**.
-   <img width="1652" height="905" alt="image" src="https://github.com/user-attachments/assets/5a0c539d-c655-409b-9ad6-bfc78aeb4110" />
-> **A note on timestamps.** Each log carries two. `@timestamp` is when the event happened in our app, and `observedTimestamp` is when the SDK collected it (a few seconds later, because of batching). We use `@timestamp` so our logs line up on the timeline by when we actually rolled the dice.
+   <img width="2049" height="1093" alt="The OpenSearch Dashboards home page with the Manage link highlighted in the top-right corner" src="images/opensearch-dashboards-manage.png" />
 
-**View your logs**
+2. From the menu on the left, select **Index patterns**.
+
+   <img width="2049" height="620" alt="The Dashboards Management page with Index patterns highlighted in the menu on the left" src="images/index-patterns-menu.png" />
+
+3. Click **Create index pattern**.
+
+   <img width="2049" height="904" alt="The Index patterns page, showing no index patterns yet, with the Create index pattern button highlighted" src="images/create-index-pattern-button.png" />
+
+4. For the index pattern name, enter `otel-logs`. You'll see it match our `otel-logs` index below. Then click **Next step**.
+
+   <img width="2049" height="1121" alt="Step 1 of creating an index pattern, with otel-logs entered as the name, a message that the pattern matches 1 source, and the Next step button highlighted" src="images/index-pattern-name.png" />
+
+   > OpenSearch Dashboards adds an asterisk for you, so the pattern is saved as `otel-logs*`. It still matches only our `otel-logs` index.
+
+5. Open the time field dropdown. 
+
+  You'll see two options. Pick `@timestamp`, which is when the event happened in our app. That way, our logs appear on the timeline based on when we actually rolled the dice. Then click **Create index pattern**.
+
+   <img width="2049" height="1142" alt="Step 2 of creating an index pattern, with the time field dropdown open, @timestamp selected, and the Create index pattern button highlighted" src="images/index-pattern-time-field.png" />
+
+**3. View our logs in Discover**
+
 1. Open the menu in the top-left corner and select **Discover**.
-   <img width="1602" height="1111" alt="image" src="https://github.com/user-attachments/assets/0592f206-cb43-4ef5-8540-80c7e8a04e55" />
 
-2. Make sure `otel-logs` is selected in the dropdown near the top-left.
-   <img width="1957" height="1121" alt="image" src="https://github.com/user-attachments/assets/a21b4227-e708-44b0-837e-0ae7d9cf3ffb" />
+   <img width="2049" height="1481" alt="The OpenSearch Dashboards navigation menu open on the left, with Discover highlighted under OpenSearch Dashboards" src="images/discover-menu.png" />
 
-3. Remember, our app only creates logs when we roll, so head back to the Roll the Dice app and roll a few times.
-   ![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
-4. Then return to **Discover**, set the time range (top-right) to **Last 15 minutes**, and click **Refresh**.
-   <img width="1962" height="1119" alt="image" src="https://github.com/user-attachments/assets/97f92ce0-60e4-4f9e-99a1-91aceb7a7e53" />
+2. Make sure `otel-logs*` is selected in the dropdown near the top-left.
+3. Our app only generates logs when we roll the dice. Head back to the Roll the Dice app and roll a few times.
 
-If you see "No results," give the batch a few seconds and check that your time range covers the last few minutes.
+   <img width="1540" height="568" alt="Refreshing the Roll the Dice app at localhost:8080/rolldice, which shows a new random number from 1 to 6 each time" src="images/roll-the-dice.gif" />
 
-Once your records appear, **expand one** by clicking the arrow at the start of its row and read through it top to bottom. 
-<img width="1960" height="1119" alt="image" src="https://github.com/user-attachments/assets/67b19343-88c9-4046-a584-cb840d48e44c" />
+4. Come back to **Discover**, set the time range to **Last 15 minutes**, and click **Refresh**.
 
-This is where the body and `dice.value` attribute we added back in `app.js` finally show up, now that the log has made its way through the Collector and into OpenSearch.
-<img width="2246" height="1123" alt="image" src="https://github.com/user-attachments/assets/74359a09-5ff4-4bee-a685-571e4e9a9964" />
+<img width="1024" height="591" alt="Discover showing results from the otel-logs* index pattern over the last 15 minutes, with a bar for the recent rolls in the chart and a list of log records below. The index pattern dropdown, time range, Refresh button, and the arrow that expands the first log record are highlighted, and host and process values are blurred" src="images/discover-results.jpg" />
 
-- **`body`** holds the message we wrote in our code (app.js), `Rolled a dice and got <value>`. It tells us what happened.
-- **`attributes.dice.value`** (just above the body) pulls out a specific detail, the number we rolled.
+> **No results?** Give it a few seconds for the batch to come through, then click **Refresh** again. Also check the time range. With **Last 15 minutes**, logs older than 15 minutes drop out of view, so roll a few more times or pick a longer range.
 
-<img width="1944" height="1115" alt="image" src="https://github.com/user-attachments/assets/35bdd5b0-c738-48f3-9513-8b0f55377e7f" />
+You should now see your log records, with the newest at the top. Let's expand one by clicking the arrow at the start of its row and take a closer look.
 
-The **`resource`** fields are **resource attributes**.
+### Inside a log record
 
+**The body and attributes**
 
-Instead of describing the event, they tell us where the telemetry came from, our application, process, and host. Because they describe the source and not the event, they stay the same on every log, unlike `dice.value`, which changes with each roll. 
+<img width="2049" height="974" alt="An expanded log record in Discover with attributes.dice.value and body highlighted, next to app.js with the body and attributes lines highlighted in the logger.emit call" src="images/log-body-and-dice-value.png" />
 
-Just like we saw with traces and metrics, many were added automatically, and some are more than we need, like host identifiers, the process owner, and the command used to start our app. We'll clean these up in the next episode.
+Remember the body and the `dice.value` attribute we set in `app.js`? Both made it through the Collector, and here they are in OpenSearch.
 
-<img width="2275" height="1119" alt="image" src="https://github.com/user-attachments/assets/8571386b-eef6-4f6d-9a0c-d7ff053eb3e0" />
+- **`body`** contains the message we created in our code, like `Rolled a dice and got 3`.
+- **`attributes.dice.value`**, right above it, captures the value we rolled as an attribute.
 
-The **severity** fields tell us how important an event is. 
+They work as a pair. The body describes the event in words, and the attribute stores the key detail as data we can filter on.
 
-We set every roll to `INFO` because they're routine, so here we see a `severity.text` of `INFO` and a `severity.number` of `9`.
+> You'll also see a few `attributes.data_stream` fields. The OpenSearch exporter adds those when it writes our logs, so they don't come from our code.
 
-That `9` has nothing to do with the number we rolled, in OpenTelemetry, `9` is the `INFO` level. In the next episode we'll give our rolls different severity levels and use them to filter our logs.
+**Resource attributes**
 
-<img width="1945" height="1113" alt="image" src="https://github.com/user-attachments/assets/e943ab24-c089-4673-b44c-59b741f32f2d" />
+<img width="2049" height="1183" alt="The resource attributes in an expanded log record, with the host and process attributes highlighted and their values blurred" src="images/log-resource-attributes.png" />
 
-At the bottom is the **trace context**, a `traceId` and `spanId` we never added ourselves. 
+Scroll down a bit, and you'll find a group of fields that start with `resource`. These are our **resource attributes**, just like the ones we saw with [traces](../traces/README.md#process-resource-attributes) and [metrics](../metrics/README.md#resource-attributes).
 
-OpenTelemetry attached them automatically because this log was created while a traced request was running. The `traceId` links this log to that request's trace, so we can jump straight from a log to the full request it belongs to.
+They describe where a log came from, such as our app, the process running it, and the host. All our logs come from the same app instance, so these values are identical on every log, while `dice.value` changes from roll to roll.
 
-**Scan many logs at once.** 
+Many of these details were added for us automatically. Some are handy to have, like `service.name`. Others are more than we need for this demo, like host identifiers, the process owner, and the command used to start our app.
 
-Expanding one record is great for a single event, but to compare several at a glance we can turn fields into columns. 
+In the next episode, we'll use processors to remove these:
+- `host.arch`
+- `host.id`
+- `host.name`
+- `process.command`
+- `process.command_args`
+- `process.executable.path`
+- `process.owner`
+- `process.pid`
 
-Under **Available fields** on the left, find `attributes.dice.value` and `severity.text` and click **Add** for each. 
+**Severity**
 
-Now every row shows the roll next to its severity. Keep this view in mind, it's exactly how we'll compare our logs before and after processing in the next episode.
-<img width="2192" height="1126" alt="image" src="https://github.com/user-attachments/assets/5a1ed192-b2b9-427d-b3a8-2909df0ade98" />
+<img width="2049" height="1033" alt="The severity.number and severity.text fields highlighted in an expanded log record, showing 9 and INFO, next to app.js with the severityNumber and severityText lines highlighted" src="images/log-severity.png" />
 
-Now that logs are being generated and exported through the Collector, we can start processing them before they're stored.
+Keep scrolling to reach the **severity** fields, which show how important an event is.
 
-# Episode 9 - Processing Logs: OpenTelemetry Collector in Action
+These come straight from `app.js`. Our rolls are routine, so we set `severityNumber` to `SeverityNumber.INFO` and `severityText` to `'INFO'` in `logger.emit()`. In OpenSearch, they show up as `severity.number` and `severity.text`.
+
+`severity.text` reads `INFO`, and `severity.number` is `9`. Don't mistake that `9` for a dice roll! It's OpenTelemetry's numeric code for `INFO`.
+
+Next episode, our rolls get different severity levels, and we'll use those levels to choose which logs to keep.
+
+**Trace context**
+
+<img width="2049" height="1194" alt="The spanId and traceId fields highlighted at the bottom of an expanded log record. In the field list on the left, attributes.dice.value is highlighted with its Add field as column button showing" src="images/log-trace-context.png" />
+
+Finally, at the bottom of the record is the **trace context**, a `traceId` and a `spanId`. Notice that we never added these in our code.
+
+Because this log was created during a traced request, OpenTelemetry attached them for us. 
+
+The `traceId` connects this log to that request's trace. If we need more context about what happened, we can search for that trace ID in Jaeger and follow the request from start to finish.
+
+So far, we've been looking at one log at a time. To compare several logs at a glance, we can turn fields into columns.
+
+In the **Available fields** menu on the left, hover over `attributes.dice.value` and `severity.text`, and click the **Add field as column** button next to each one.
+
+### Compare several logs at once
+<img width="2049" height="1186" alt="Discover with attributes.dice.value and severity.text listed under Selected fields and shown as columns in the results table, with a dice value and INFO severity on every row" src="images/discover-dice-value-severity-columns.png" />
+
+Now every row shows its dice value and severity right in the table. This view comes in handy next episode, when we compare our logs before and after processing.
+
+And just like that, our logs pipeline is up and running!
+
+<img width="1280" height="706" alt="Logs pipeline: every time we roll the dice, app.js creates a log record and instrumentation.js sends it to the Collector's otlp receiver. Inside the logs pipeline, the receiver passes each log to both exporters at the same time. The debug exporter prints it to the terminal as Collector output in Docker, and the opensearch exporter sends it to OpenSearch to store and visualize" src="images/logs-collector-configuration.gif" />
+
+In this episode, we wrote our first manual instrumentation with the OpenTelemetry Logs API, sent our logs through a bare-bones Collector, and explored them in OpenSearch Dashboards. 
+
+Along the way, we unpacked a log record, from its body and attributes to its resource attributes, severity, and trace context.
+
+Our logs are flowing, but they're still raw. 
+
+In the next episode, processors are back, and we'll use them to clean up, enrich, and filter our logs before they leave the Collector.
+
+# Episode 8 - Processing Logs: OpenTelemetry Collector in Action
 
 In the last episode, we got our bare-bones logs pipeline up and running. Our app generated logs, the Collector exported them to OpenSearch, and we explored them in OpenSearch Dashboards.
 
@@ -429,24 +522,23 @@ If you still have the third terminal open with the filtered Collector output, go
 
 In the first two terminals, stop what's running, move into the `logs/add-processors` folder, and start everything back up.
 
-**Terminal 1 - Roll the Dice app**
+**Terminal 1: restart the app**
+
+> First, press **Ctrl + C** to stop the running app.
+
 ```bash
-# stop the running app
-Ctrl + C
-# move to the logs add-processors folder
 cd ../add-processors
-# install this folder's dependencies, then start the app
 npm install
 npm start
 ```
 
-**Terminal 2 - Docker (Collector + Jaeger + Prometheus + OpenSearch)**
+**Terminal 2: restart the Collector, Jaeger, Prometheus, and OpenSearch**
+
+> First, press **Ctrl + C** to stop the running Docker Compose session.
+
 ```bash
-# stop and remove the bare-bones stack
 docker compose down
-# move to the logs add-processors folder
 cd ../add-processors
-# bring the stack up with the new processors config
 docker compose up
 ```
 
