@@ -488,37 +488,45 @@ In the next episode, processors are back, and we'll use them to clean up, enrich
 
 # Episode 8 - Processing Logs: OpenTelemetry Collector in Action
 
-In the last episode, we got our bare-bones logs pipeline up and running. Our app generated logs, the Collector exported them to OpenSearch, and we explored them in OpenSearch Dashboards.
+In the last episode, we got our bare-bones logs pipeline running. Our app created logs, the Collector sent them to OpenSearch, and we explored them in OpenSearch Dashboards.
 
-As we looked through those logs, a few things stood out that we could improve.
+When we looked [inside a log record](#inside-a-log-record), a few things stood out:
+- Our logs carried host and process details we don't need.
+- Every roll came in with the same `INFO` severity, no matter what we rolled.
+- We stored every single roll, even though we might not need all of them.
 
-Our logs carried host and process details we don't really need. Every roll also came through with the same `INFO` severity, whether we rolled a one or a six.
+In this episode, we'll fix all three with **processors**.
 
-And we were storing every single roll, even though we might not need all of them.
-
-That's where **processors** come in.
-
-If you followed along with the traces and metrics episodes, processors should look familiar. They run inside the OTel Collector and let us modify, enrich, and filter our telemetry before it's exported. 
-
-This time, we'll put them to work on our logs.
+## Processing logs with the OpenTelemetry Collector
 
 <img width="1280" height="717" alt="Processing logs with the OpenTelemetry Collector: logs flow from the Roll the Dice app to the Collector's otlp receiver, then through three processors in order. The resource processor adds the environment and drops host and process details, the transform processor changes rolls of 1 from INFO to WARN, and the filter processor drops logs below WARN. The opensearch exporter sends the remaining logs in batches, every 5 seconds or 512 logs, to OpenSearch for storage and visualization" src="images/processing-logs-with-processors.gif" />
 
-In this episode, we'll:
-1. **Clean up** the resource attributes we don't need.
-2. **Enrich** our logs by giving some of our dice rolls a different severity.
-3. **Filter** our logs, using those severity levels to decide which ones to keep.
+Just like with traces and metrics, these changes happen inside the Collector, before our logs are exported.
 
-Let's get everything ready.
+We'll use three processors:
+- The **`resource`** processor removes the resource attributes we don't need.
+- The **`transform`** processor gives some of our dice rolls a different severity.
+- The **`filter`** processor uses those severity levels to decide which logs to keep.
 
-## Run the learning environment locally
+We'll also see how our logs get batched on their way to OpenSearch.
 
-If you've been following along from the last episode, you should already have two terminals open.
-One is running the Roll the Dice app and the other is running Docker. We'll reuse both.
+None of this requires touching our app's code. Everything happens in the Collector.
 
-If you still have the third terminal open with the filtered Collector output, go ahead and stop it with `Ctrl + C`.
+## Project folders
 
-In the first two terminals, stop what's running, move into the `logs/add-processors` folder, and start everything back up.
+1. `javascript/logs/bare-bones-setup/` (**Episode 7**)
+   - Instruments the Roll the Dice app and sends logs to the Collector.
+   - The Collector exports logs to OpenSearch with no additional processing.
+
+2. `javascript/logs/add-processors/` (**Current episode**)
+   - Uses the same app and instrumentation as `bare-bones-setup`.
+   - Adds processors to the Collector configuration that clean up, enrich, and filter our logs, and batches logs before exporting them to OpenSearch.
+
+## Run the updated setup
+
+You should still have two terminals open, one for the Roll the Dice app and one for Docker. If the third terminal with the filtered Collector output is still running, stop it with **Ctrl + C**.
+
+In the other two, we'll stop what's running and switch to the `logs/add-processors` folder.
 
 **Terminal 1: restart the app**
 
@@ -530,7 +538,9 @@ npm install
 npm start
 ```
 
-**Terminal 2: restart the Collector, Jaeger, Prometheus, and OpenSearch**
+The `add-processors` folder has its own dependencies, so we run `npm install` before starting the app.
+
+**Terminal 2: restart the stack with the new Collector config**
 
 > First, press **Ctrl + C** to stop the running Docker Compose session.
 
@@ -540,29 +550,24 @@ cd ../add-processors
 docker compose up
 ```
 
-Once everything is running, we're ready to generate some logs.
+**Generate some logs**
 
-In your browser, go to http://localhost:8080/rolldice and refresh the page a few times to roll the dice.
+Once everything's up, head back to the Roll the Dice app at http://localhost:8080/rolldice and refresh the page a few times.
 
-![Roll the dice mov](https://github.com/user-attachments/assets/32f80dc2-93b0-4578-91db-17b316a79760)
+<img width="1540" height="568" alt="Refreshing the Roll the Dice app at localhost:8080/rolldice, which shows a new random number from 1 to 6 each time" src="images/roll-the-dice.gif" />
 
-Now that our logs are flowing, let's take a look at the configuration that's processing them.
+If you're watching the terminal running Docker, you'll notice a lot fewer logs than last time. Most of our rolls don't show up at all.
 
-## New OpenTelemetry Collector Configuration
+That's our processors at work. Let's open the config and find out what they're doing.
 
-In your code editor, make sure the `logs/add-processors` folder is open. Then head into the `otel` directory and open `otel-collector-config.yaml`.
+## Collector configuration
 
-In our bare-bones setup, our configuration had three main parts: receivers, exporters, and service pipelines. 
+In your code editor, open the `javascript/logs/add-processors` folder. Then open `otel/otel-collector-config.yaml`.
 
-This time, there's a fourth, **processors**.
+> **Quick heads-up.** Just like in the last episode, the snippets below only show the logs-related bits. Your actual file also includes the processors, exporters, and pipelines for traces and metrics from the earlier episodes. We've just trimmed them out here so it's easier to focus on logs.
 
-You'll notice this config has pipelines for traces, metrics, and logs, and some of the processors are shared across them. 
-For this episode, we'll focus on the logs pipeline.
-
-> **Quick heads-up.** Just like in the last episode, the snippet below only shows the logs-related bits. Your actual file also includes the traces and metrics processors and exporters from the earlier episodes, we've just trimmed them out here so it's easier to focus on logs.
-
-**otel/otel-collector-config.yaml**
 ```yaml
+# otel/otel-collector-config.yaml
 receivers:
   otlp:
     protocols:
@@ -594,6 +599,8 @@ processors:
       - key: process.pid
         action: delete
 
+  # ...attributes/traces and filter/exclude_metrics processors from the earlier episodes...
+
   transform/logs:
     log_statements:
       - set(log.severity_number, SEVERITY_NUMBER_WARN) where log.attributes["dice.value"] == 1
@@ -607,6 +614,8 @@ exporters:
   debug:
     verbosity: detailed
 
+  # ...otlp_grpc/jaeger and prometheus exporters from the earlier episodes...
+
   opensearch:
     http:
       endpoint: http://opensearch:9200
@@ -619,22 +628,23 @@ exporters:
 
 service:
   pipelines:
+    # ...traces and metrics pipelines from the earlier episodes...
     logs:
       receivers: [otlp]
       processors: [resource, transform/logs, filter/logs]
       exporters: [debug, opensearch]
 ```
 
-Our logs pipeline uses three processors: `resource`, `transform`, and `filter`. Let's walk through them one at a time.
+Compared with our bare-bones setup, there's a new section, `processors`. That's where we define the processors our pipelines use.
 
-## 1. The `resource` processor
+Each pipeline uses its own mix of processors, and only one, `resource`, is shared by all three.
 
-**The `resource` processor modifies the resource attributes that describe where our telemetry came from.**
+Our logs pipeline uses three: `resource`, `transform/logs`, and `filter/logs`. Let's start with the one we already know.
 
-We've already used this one in our traces and metrics episodes.
+### The resource processor
 
-**otel/otel-collector-config.yaml**
 ```yaml
+# otel/otel-collector-config.yaml
 processors:
   resource:
     attributes:
@@ -643,68 +653,41 @@ processors:
         action: insert
       - key: host.arch
         action: delete
-      - key: host.id
-        action: delete
-      - key: host.name
-        action: delete
-      - key: process.command
-        action: delete
-      - key: process.command_args
-        action: delete
-      - key: process.executable.path
-        action: delete
-      - key: process.owner
-        action: delete
+      # ...the other host and process attributes...
       - key: process.pid
         action: delete
 ```
 
-In our config, it does two things:
-- It **inserts** `deployment.environment.name` and sets it to `local`, so we can tell at a glance which environment our telemetry came from.
-- It **deletes** the host and process details we spotted in the last episode, like `host.id`, `process.owner`, and the command used to start our app.
+This is the same `resource` processor from the [traces](../traces/README.md#the-resource-processor) and [metrics](../metrics/README.md#the-resource-processor) episodes. It adds `deployment.environment.name` with the value `local`, and it deletes the host and process details we don't need.
 
-The same `resource` processor is shared across our traces, metrics, and logs pipelines.
+Since all three pipelines share it, our logs get the same cleanup.
 
 **Follow along in OpenSearch Dashboards**
 
-Want to see these changes on your own setup? 
+Want to see the changes on your own setup? 
 
-Open OpenSearch Dashboards at http://localhost:5601 and head to **Discover**.
+Open OpenSearch Dashboards at http://localhost:5601.
 
-If you need to recreate the `otel-logs` index pattern, follow the same steps from the last episode, using `otel-logs` for the name and `@timestamp` for the time field. Then expand a log record, and you'll be able to spot the changes for yourself.
+This is a brand-new stack, so OpenSearch Dashboards starts fresh. 
 
-For each processor, we'll compare our logs from the bare-bones setup (**before**) with our processed logs (**after**).
+If the welcome pop-ups appear, dismiss them like last time. Then create the index pattern again, using the same [steps from the last episode](#explore-our-logs-in-opensearch-dashboards) with `otel-logs` as the name and `@timestamp` as the time field.
 
-**Before: logs from the bare-bones setup**
+Once that's done, head to **Discover** and expand a log record.
 
-Remember all those `resource.host` and `resource.process` attributes we saw when we expanded a log in the last episode?
+**Before and after**
 
-<img width="2506" height="1275" alt="image" src="https://github.com/user-attachments/assets/7adb46af-71bb-4d01-be60-49ab1e8c2849" />
+<img width="2049" height="1150" alt="Resource attributes in an expanded log record, before and after processing. Before processing, the host and process attributes are highlighted with their values blurred. After processing, deployment.environment.name is set to local and highlighted, and the host and process attributes are gone" src="images/resource-attributes-before-after.png" />
 
-**After: logs from the new Collector configuration**
+On the left is a log from our bare-bones setup, with all those `resource.host` and `resource.process` attributes. On the right is a processed log.
 
-Now let's compare that with our processed logs. Here, the before and after views are side by side so it's easy to see what changed.
+The host and process details are gone, and `deployment.environment.name` shows up with the value `local`.
 
-<img width="1309" height="507" alt="image" src="https://github.com/user-attachments/assets/48a2617a-f4f5-4c8b-a541-9dab0a811f33" />
+One processor removed what we don't need and added useful context, and it does the same for all three signals.
 
-On the left are our original logs, with all those host and process details.
+### The transform processor
 
-On the right, after applying the `resource` processor, those details are gone. In their place, we have a new resource attribute, `deployment.environment.name`, set to `local`.
-
-With just one processor, we've removed the details we don't need and added the context we do.
-
-## 2. The `transform` processor
-
-**The `transform` processor modifies the log records themselves.**
-
-While the `resource` processor works on where our telemetry came from, the `transform` processor lets us change different parts of each log record.
-
-It uses the **OpenTelemetry Transformation Language**, or **OTTL**, to describe the changes we want to make.
-
-We won't dive into OTTL itself in this series, but we'll see an example of what it can do. If you'd like to learn more, check out the [Transform processor (OTTL)](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor) link in the [Resources](#resources) section.
-
-**otel/otel-collector-config.yaml**
 ```yaml
+# otel/otel-collector-config.yaml
 processors:
   transform/logs:
     log_statements:
@@ -712,125 +695,125 @@ processors:
       - set(log.severity_text, "WARN") where log.attributes["dice.value"] == 1
 ```
 
-In our example, we're going to change the **severity** of some of our logs.
+With our resource attributes cleaned up, let's change the log records themselves. That's what the `transform` processor is for.
 
-Let's pretend that rolling a one is something we want to flag. Whenever `dice.value` is `1`, these two statements raise the severity from `INFO` to `WARN`:
-- severity_number becomes SEVERITY_NUMBER_WARN. 
-OpenTelemetry represents WARN with the number 13, so that's what you'll see as severity.number in Discover, just like INFO showed up as 9 in the last episode.
-- `severity_text` becomes `WARN`.
+It describes changes using the **OpenTelemetry Transformation Language**, or **OTTL**.
 
-Flagging those rolls helps them stand out from the rest, and it sets us up to decide which logs to keep in the next step.
+For our demo, let's say a roll of one is something we want to flag. 
 
-Of course, in a real application, what we flag depends on what matters for our use case.
+Whenever `dice.value` is `1`, this processor raises the log's severity from `INFO` to `WARN`. That makes those rolls stand out, and we'll use the new severity in the next step to decide which logs to keep.
 
-Now let's see what this looks like in Discover.
+Flagging ones is just a choice for our demo. In your own app, you'd decide which events deserve attention.
 
-**Before: logs from the bare-bones setup**
+**How the statements work**
 
-Here, the dice value and severity are shown side by side. Notice that every roll, from one through six, came through with the same `INFO` severity.
+Each line under `log_statements` follows the same pattern: `set(field, value) where condition`.
+- **`set(...)`** changes a field on the log record.
+- **`where ...`** limits the change to logs that match the condition. Here, that's logs where the `dice.value` attribute is `1`.
 
-<img width="2501" height="1282" alt="image" src="https://github.com/user-attachments/assets/6867f999-95f6-4eeb-a0a6-d5cb14870ccd" />
+Every log stores its severity twice, once as a number and once as text. To change the severity, we update both:
+- The first statement sets the number to `SEVERITY_NUMBER_WARN`, which is `13`. In Discover, this is the `severity.number` field, which showed `9` for `INFO` in the last episode.
+- The second statement sets the text to `WARN`. In Discover, this is the `severity.text` field.
 
-**After: logs from the new Collector configuration**
+Together, they turn every roll of one from `INFO` into `WARN`, while every other roll stays `INFO`.
 
-To compare, let's set up the same view on our live dashboard that we used in the last episode.
+We won't go deeper into OTTL in this series. If you'd like to explore it, check out the [Transform processor (OTTL)](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor) docs in the [Resources](#resources) section.
 
-Under **Available fields** on the left, find `attributes.dice.value` and `severity.text` and click **Add** for each. Now every row shows the roll next to its severity.
+**Before and after**
 
-<img width="2420" height="1050" alt="image" src="https://github.com/user-attachments/assets/b937e349-33e7-47db-8c2d-cb825745974d" />
+Here's the table view from our bare-bones setup, with the dice value and severity side by side.
 
-Let's expand one of the records and scroll down to `attributes.dice.value`.
+<img width="2049" height="1186" alt="Before processing: Discover in the bare-bones setup with attributes.dice.value and severity.text as columns. Every row has an INFO severity, including a highlighted roll of 1" src="images/transform-before-table.png" />
 
-<img width="1497" height="1122" alt="image" src="https://github.com/user-attachments/assets/72824e95-13c8-4734-80fd-e3834b7b2108" />
+Every roll came in as `INFO`, no matter what we rolled.
 
-Remember, in our bare-bones setup, every roll came through as `INFO`, including the ones.
+To compare, let's set up the same view on our live dashboard. In the **Available fields** menu on the left, hover over `attributes.dice.value` and `severity.text`, and click the **Add field as column** button next to each one.
 
-Now, the dice value is `1` and the severity is `WARN`. That's our `transform` processor at work, changing the severity exactly as we configured it.
+<img width="2049" height="1062" alt="After processing: Discover with attributes.dice.value and severity.text added as columns under Selected fields. Every row shows a dice value of 1 and a WARN severity" src="images/transform-after-table.png" />
 
-Now let's close this record and take a look at the rest of our logs.
+Now expand one of the records and scroll down to `attributes.dice.value`.
 
-<img width="2420" height="1047" alt="image" src="https://github.com/user-attachments/assets/97187fb8-050f-4057-be9b-7293cde90696" />
+<img width="2049" height="1068" alt="An expanded processed log record with attributes.dice.value set to 1 highlighted, and severity.number 13 and severity.text WARN highlighted" src="images/transform-after-expanded-record.png" />
 
-Here's where things get interesting. Every log record we're seeing has a dice value of one.
+This is a roll of one. Its `severity.text` is now `WARN`, and `severity.number` went from `9` to `13`.
 
-It's pretty unlikely that we rolled a one every single time. 
+That's the `transform` processor doing exactly what we configured.
 
-So what happened to all the other rolls? That's where our next processor comes in.
+Now close the record and look at the rest of the table.
 
-## 3. The `filter` processor
+<img width="2049" height="1062" alt="Discover after processing with the attributes.dice.value column highlighted. Every row has a dice value of 1" src="images/transform-after-only-ones.png" />
 
-**The `filter` processor drops the telemetry we don't need before it's exported.**
+Here's where things get interesting. Every single log has a dice value of one, and it's pretty unlikely we rolled a one every time.
 
-Not every log needs to be stored. As the amount of log data grows, keeping only what we need can save storage and make our logging setup more cost-efficient.
+So where did the other rolls go? Our next processor has the answer.
 
-**otel/otel-collector-config.yaml**
+### The filter processor
+
 ```yaml
+# otel/otel-collector-config.yaml
 processors:
   filter/logs:
     log_conditions:
       - 'log.severity_number < SEVERITY_NUMBER_WARN'
 ```
 
-The `filter` processor drops any log record that matches its condition. 
+We used the `filter` processor in the [metrics episode](../metrics/README.md#the-filter-processor) to drop a metric we didn't need. This time, we're using it to keep only the logs we want.
 
-In our example, that's anything with a severity below `WARN`. Since our rolls of one are now `WARN` and the rest are still `INFO`, only the ones make it through.
+Storing fewer logs means less data to keep around, which can help keep costs down.
 
-Let's see the difference in OpenSearch.
+Our condition under **`log_conditions`** drops any log with a severity below `WARN`.
 
-**Before: logs from the bare-bones setup**
+Since `INFO` is below `WARN`, every roll except the ones gets dropped.
 
-Every roll made it to OpenSearch, from one through six. At the top, we can also see the total number of log records.
+**Before and after**
 
-<img width="2500" height="1277" alt="image" src="https://github.com/user-attachments/assets/65704ba7-099c-478b-9e43-05f444473d22" />
+Here's what our logs looked like in the bare-bones setup.
 
-**After: logs from the new Collector configuration**
+<img width="2049" height="1186" alt="Before processing: Discover in the bare-bones setup with the attributes.dice.value column highlighted, showing a mix of dice values from every roll" src="images/filter-before-table.png" />
 
-Take a look at the results count. We have far fewer records than before.
+Every roll made it to OpenSearch, no matter what we rolled, and every one of them was `INFO`.
 
-And notice what's left. Every dice value is `1`, and every severity is `WARN`.
+And here are our processed logs.
 
-<img width="2284" height="993" alt="image" src="https://github.com/user-attachments/assets/f9d8db1f-1cd2-4326-ad8d-843d30cee35b" />
+<img width="2049" height="1062" alt="After processing: Discover with the attributes.dice.value and severity.text columns highlighted. Every remaining row has a dice value of 1 and a WARN severity" src="images/filter-after-table.png" />
 
-By combining the `transform` and `filter` processors, we can flag the events we care about and filter out the rest before they're stored.
+What's left is only rolls of one, all `WARN`. The rest never made it to OpenSearch.
 
-## Batching at the exporter
+Together, `transform` and `filter` let us flag the events we care about and drop the rest before they're stored.
 
-Now that we've covered our processors, let's scroll down to the exporters.
+### Batching in two places
 
-**Exporters send telemetry from the Collector to our backends.**
+With our processors covered, let's scroll down to the exporters. There's one more change there, and it's about batching.
 
-There's one change here worth pointing out, and it has to do with **batching**.
-Before we get into it, let's revisit the batching we saw in the last episode.
+Our logs now get batched twice, once in our app and once in the Collector.
 
-**Batching in the app**
+**In our app**
 
-Remember `instrumentation.js`? Our app uses a `BatchLogRecordProcessor` to group logs together before sending them to the Collector.
-
-That batching happens at the app level, before our logs ever reach the Collector.
-
-**instrumentation.js**
 ```js
+// instrumentation.js
 logRecordProcessors: [
-  new BatchLogRecordProcessor(
-    new OTLPLogExporter({
+  new BatchLogRecordProcessor({
+    exporter: new OTLPLogExporter({
       url: 'http://localhost:4317',
     }),
-  ),
+  }),
 ],
 ```
 
-**Batching in the Collector**
+Remember the batch log record processor from the last episode? It groups our logs inside the app before sending them to the Collector.
 
-Back in our Collector config, we're looking at batching at a different point in the pipeline, right before the Collector sends telemetry to a backend.
+**In the Collector**
 
-Remember our metrics setup? Prometheus **pulls** metrics from the Collector, so we don't use batching in that pipeline.
+The second round happens in the Collector's exporter, right before our logs go to OpenSearch.
 
-Logs and traces work a little differently. Our OpenSearch and Jaeger exporters **push** telemetry to their backends, so sending records in batches helps make that more efficient.
+<img width="1280" height="717" alt="Push vs pull: the Collector pushes traces to Jaeger and logs to OpenSearch, both batched with sending_queue, while Prometheus scrapes metrics from the Collector on port 8889 every 15 seconds, so there's nothing to batch" src="images/push-vs-pull.gif" />
 
-Let's take a look at our OpenSearch exporter.
+In the metrics episode, we saw that [Prometheus pulls](../metrics/README.md#why-theres-no-batching-for-prometheus) metrics from the Collector. Jaeger and OpenSearch work the other way around. The Collector pushes data to them.
 
-**otel/otel-collector-config.yaml**
+When we push, a sending queue lets the exporter send fewer, larger requests instead of sending telemetry one record at a time.
+
 ```yaml
+# otel/otel-collector-config.yaml
 exporters:
   opensearch:
     http:
@@ -843,63 +826,58 @@ exporters:
         min_size: 512
 ```
 
-We already covered `endpoint` and `logs_index` in the last episode. They tell the Collector where to send our logs and which index to write them to.
+We covered `endpoint` and `logs_index` in the last episode. They tell the Collector where to send our logs and which index to write to.
 
-What's new here is the **`sending_queue`**, which lets the exporter send our logs in batches:
-- `sizer: items` tells the exporter to measure batch size by the number of log records.
-- `batch.min_size: 512` sends a batch once it reaches 512 log records.
-- `batch.flush_timeout: 5s` is the longest the exporter waits before sending a batch, even if it isn't full yet.
+The new part is `sending_queue`, with the same settings we used for [Jaeger in the traces episode](../traces/README.md#batching-in-the-exporter). The exporter sends a batch once it has 512 log records or after 5 seconds, whichever comes first.
 
-Whichever comes first, 512 records or 5 seconds, triggers the export.
+A few dice rolls won't come close to 512 logs, so the batch usually goes out when the timeout hits. That's part of why our logs take a few seconds to show up in OpenSearch.
 
-These values aren't one-size-fits-all, so feel free to adjust them based on your needs.
+These settings are only a starting point, so feel free to tune them for your own needs.
 
-## The service component ties it all together
+### Service
 
-**The `service` component defines how data moves through the Collector.**
-
-As we learned earlier, this is where we connect our receivers, processors, and exporters to build our pipeline.
-
-**otel/otel-collector-config.yaml**
 ```yaml
+# otel/otel-collector-config.yaml
 service:
   pipelines:
+    # ...traces and metrics pipelines from the earlier episodes...
     logs:
       receivers: [otlp]
       processors: [resource, transform/logs, filter/logs]
       exporters: [debug, opensearch]
 ```
-- The **`otlp` receiver** accepts logs from our app.
-- The **processors** clean up, enrich, and filter them.
-- The **`debug` and `opensearch` exporters** print the remaining logs to the terminal and send them to OpenSearch for storage.
 
-**IMPORTANT**
+The `service` section is where everything comes together. Our logs pipeline connects our receiver, our three processors, and our exporters.
 
-Processors run in the order they're liste. First `resource`, then `transform`, and finally `filter`.
+<img width="1280" height="717" alt="Logs pipeline with processors: the Roll the Dice app sends logs to the Collector's otlp receiver. The resource processor adds the environment and drops host and process details, the transform processor changes rolls of 1 from INFO to WARN, and the filter processor drops logs below WARN. The remaining logs go to the debug exporter, which prints them to the terminal as Collector output, and the opensearch exporter, which sends them in batches to OpenSearch to store and visualize" src="images/logs-pipeline-with-processors.gif" />
 
-That order is intentional. 
+Here's how a log travels through it:
+- Each roll of the dice sends a log record to the **`otlp`** receiver.
+- The log then moves through our processors in the order they're listed.
+  - **`resource`** adds our environment and removes the host and process details.
+  - **`transform/logs`** checks the dice value and changes rolls of one to `WARN`.
+  - **`filter/logs`** drops anything below `WARN`, so only the ones make it through.
+- The logs that survive go to both exporters.
+  - **`debug`** prints them to the terminal.
+  - **`opensearch`** sends them to OpenSearch in batches.
 
-The `transform` processor changes our rolls of one to `WARN`, and then the `filter` processor drops anything below `WARN`.
-If we switched that order, every one of those rolls would still be `INFO` when it reached the filter, so they'd all be dropped.
+> **Why the order matters.** The filter can only keep our rolls of one because the transform already changed them to `WARN`. If `filter/logs` ran first, every roll would still be `INFO` when it got there, so every log would be dropped.
 
-And with that, we've taken our logs pipeline one step further by processing our logs before they're stored.
+And that's how we cleaned up, enriched, and filtered our logs, all without changing a single line of our app's code!
 
 # What We Built and Where to Go Next
 
-That's a wrap on the OpenTelemetry for Beginners JavaScript Journey!
-<img width="1280" height="719" alt="Pipelines for all three signals: traces, metrics, and logs" src="images/all-three-signals.gif" />
+And that's a wrap on the OpenTelemetry for Beginners JavaScript Journey!
 
-We started by exploring what OpenTelemetry is. Then, one signal at a time, we built pipelines for traces, metrics, and logs.
+<img width="1280" height="717" alt="What we've built across this series: the Roll the Dice app's instrumentation sends traces, metrics, and logs to the OTel Collector, which receives, processes, and exports them to Jaeger, Prometheus, and OpenSearch for storage and visualization" src="images/all-three-signals.gif" />
 
-We instrumented our app, configured the OTel Collector to receive, process, and export our telemetry, and explored our data in a different backend for each signal.
+We kicked things off by learning what OpenTelemetry is. From there, we took one signal at a time and built a pipeline for each: traces, then metrics, then logs.
 
-And the best part? 
+Along the way, we instrumented our app, set up the OTel Collector to receive, process, and export our telemetry, and explored each signal in its own backend.
 
-**Our app never needed to know where its telemetry was going.** 
+And here's the best part. **Our app never needed to know where its telemetry was going.**
 
-We chose where to send it through the Collector configuration, without changing a line of application code. 
-
-That flexibility is one of the great things about OpenTelemetry, and it helps us avoid getting locked into a single vendor.
+We decided that in the Collector configuration, without changing a line of application code. That flexibility is one of the best things about OpenTelemetry, and it keeps us from getting locked into a single vendor.
 
 ## Where to go from here
 - **Try it on your own app.**
@@ -909,9 +887,7 @@ That flexibility is one of the great things about OpenTelemetry, and it helps us
 - **Connect with the community.**
   - If you have questions, the [OpenTelemetry documentation](https://opentelemetry.io/docs/) and the [OpenTelemetry Slack channel](https://opentelemetry.io/community/end-user/slack-channel/) are great places to start.
 
-Thank you so much for following along with me throughout this series. 
-
-I hope you enjoyed it and learned something useful along the way!
+Thanks so much for joining me on this series. I hope you had fun and picked up something useful along the way!
 
 ## Resources
 - [OpenTelemetry documentation](https://opentelemetry.io/docs/)
