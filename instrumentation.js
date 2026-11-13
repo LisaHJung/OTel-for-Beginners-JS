@@ -28,20 +28,26 @@ const sdk = new opentelemetry.NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: 'http://localhost:4317',
   }),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: new OTLPMetricExporter({
-      url: 'http://localhost:4317',
-    }),
-    exportIntervalMillis: 10000,
-  }),
-  logRecordProcessors: [
-    new BatchLogRecordProcessor(
-      new OTLPLogExporter({
+  metricReaders: [
+    new PeriodicExportingMetricReader({
+      exporter: new OTLPMetricExporter({
         url: 'http://localhost:4317',
       }),
-    ),
+      exportIntervalMillis: 10000,
+    }),
   ],
-  instrumentations: [getNodeAutoInstrumentations()],
+  logRecordProcessors: [
+    new BatchLogRecordProcessor({
+      exporter: new OTLPLogExporter({
+        url: 'http://localhost:4317',
+      }),
+    }),
+  ],
+  instrumentations: [
+    getNodeAutoInstrumentations({
+      '@opentelemetry/instrumentation-router': { enabled: false },
+    }),
+  ],
 });
 
 sdk.start();

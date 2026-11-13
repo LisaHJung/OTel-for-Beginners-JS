@@ -490,8 +490,6 @@ In the next episode, processors are back, and we'll use them to clean up, enrich
 
 In the last episode, we got our bare-bones logs pipeline up and running. Our app generated logs, the Collector exported them to OpenSearch, and we explored them in OpenSearch Dashboards.
 
-<img width="1280" height="716" alt="Bare-bones logs pipeline to OpenSearch" src="images/logs-pipeline.gif" />
-
 As we looked through those logs, a few things stood out that we could improve.
 
 Our logs carried host and process details we don't really need. Every roll also came through with the same `INFO` severity, whether we rolled a one or a six.
@@ -504,7 +502,7 @@ If you followed along with the traces and metrics episodes, processors should lo
 
 This time, we'll put them to work on our logs.
 
-<img width="1280" height="716" alt="Logs pipeline with processors in the OTel Collector" src="images/processed-logs-pipeline.gif" />
+<img width="1280" height="717" alt="Processing logs with the OpenTelemetry Collector: logs flow from the Roll the Dice app to the Collector's otlp receiver, then through three processors in order. The resource processor adds the environment and drops host and process details, the transform processor changes rolls of 1 from INFO to WARN, and the filter processor drops logs below WARN. The opensearch exporter sends the remaining logs in batches, every 5 seconds or 512 logs, to OpenSearch for storage and visualization" src="images/processing-logs-with-processors.gif" />
 
 In this episode, we'll:
 1. **Clean up** the resource attributes we don't need.

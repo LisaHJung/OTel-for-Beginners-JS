@@ -1,5 +1,5 @@
 const express = require('express');
-const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
+const { logs, SeverityNumber } = require('@opentelemetry/api');
 
 const PORT = parseInt(process.env.PORT || '8080');
 const app = express();
@@ -26,4 +26,3 @@ app.get('/rolldice', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Listening for requests on http://localhost:${PORT}`);
 });
-
